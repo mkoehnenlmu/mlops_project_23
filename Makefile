@@ -20,10 +20,11 @@ endif
 # COMMANDS                                                                      #
 #################################################################################
 
-## Install Python Dependencies
+## Install Python Dependencies (and set dvc data collection to false)
 requirements: test_environment
 	$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
 	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
+	dvc config core.analytics false
 
 ## Make Dataset
 data: requirements
