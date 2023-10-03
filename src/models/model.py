@@ -54,4 +54,6 @@ class LightningModel(pl.LightningModule):
         x, y = batch
         y_hat = self.forward(x)
         loss = self.loss(y_hat, y)
+        self.log('train_loss', loss)
+        
         return {'loss': loss}
