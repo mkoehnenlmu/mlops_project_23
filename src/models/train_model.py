@@ -2,6 +2,7 @@ import pytorch_lightning as pl
 from torch import save, tensor
 import pandas as pd
 from model import LightningModel
+import hydra
 
 
 # loads the data from the processed data folder
@@ -40,16 +41,24 @@ def save_model(model: LightningModel):
     save(model.state_dict(), "models/model.pth")
 
 
-if __name__ == "__main__":
+@hydra.main(config_path = "../configs/", config_name="config.yaml", version_base = "1.2")
+def main(cfg):
     data = load_data()
-
-    hparams ={  "lr": 0.001,
-                "epochs": 5,
-                "batch_size": 32,
-                "input_size": 90,
-                "hidden_size": 128,
-                "num_layers": 3,
+    
+    hparams ={  "lr": cfg.hyperparameters.learning_rate,
+                "epochs": cfg.hyperparameters.epochs,
+                "batch_size": cfg.hyperparameters.batch_size,
+                "input_size": cfg.hyperparameters.input_size,
+                "output_size": cfg.hyperparameters.output_size,
+                "hidden_size": cfg.hyperparameters.hidden_size,
+                "num_layers":  cfg.hyperparameters.num_layers,
+                "criterion":  cfg.hyperparameters.criterion,
+                "optimizer":  cfg.hyperparameters.optimizer,
                 }
     
     model = train(data, hparams)
     save_model(model)
+    
+    
+if __name__ == "__main__":
+    main()

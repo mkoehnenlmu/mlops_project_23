@@ -1,0 +1,12 @@
+hyperparameters:
+  batch_size: 32
+  learning_rate: 1e-3
+  epochs: 5
+  input_size: 90
+  output_size: 1
+  hidden_size: 128
+  num_layers: 3
+  dropout_rate: 0.5
+  criterion: "MSELoss"
+  optimizer: "Adam"
+

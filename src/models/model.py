@@ -24,18 +24,28 @@ class LightningModel(pl.LightningModule):
             nn.ReLU(),
             nn.Linear(int(hparams["hidden_size"]/2), int(hparams["hidden_size"]/4)),
             nn.ReLU(),
-            nn.Linear(int(hparams["hidden_size"]/4), 1),
+            nn.Linear(int(hparams["hidden_size"]/4), hparams["output_size"]),
         )
 
         # use l2 loss
-        self.loss = nn.MSELoss()
+        if hparams["criterion"] == "MSELoss":
+            self.loss = nn.MSELoss()
+        elif hparams["criterion"] == "NLLLoss":
+            self.loss = nn.NLLLoss()
+        else:
+            raise NotImplementedError
     
     def train_dataloader(self, data):
         return DataLoader(data, batch_size=self.hyperparams["batch_size"],
                           shuffle=True)
     
     def configure_optimizers(self):
-        return optim.Adam(self.parameters(), lr=self.hyperparams["lr"])
+        if self.hyperparams["optimizer"] == "Adam":
+            return optim.Adam(self.parameters(), lr=self.hyperparams["lr"])
+        elif self.hyperparams["optimizer"] == "SGD":
+            return optim.SGD(self.parameters(), lr=self.hyperparams["lr"])
+        else:
+            raise NotImplementedError
 
     def forward(self, x):
         return self.model(x)

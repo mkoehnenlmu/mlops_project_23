@@ -85,3 +85,15 @@ target/
 
 # Mypy cache
 .mypy_cache/
+
+# hydra files
+*.hydra
+
+# stored models
+*.pth
+
+# data
+data/
+
+# lightning logs
+lightning_logs/
