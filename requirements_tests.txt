@@ -1,7 +1,8 @@
 # local package
 -e .
 
-torch -f https://download.pytorch.org/whl/cpu
+
+torch --index-url https://download.pytorch.org/whl/cpu
 lightning
 click
 Sphinx
