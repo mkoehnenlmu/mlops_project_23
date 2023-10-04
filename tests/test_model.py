@@ -10,7 +10,7 @@ import torch
 from contextlib import nullcontext as does_not_raise
 
 def get_hparams():
-    with open(os.path.join("", "src/configs/config.yaml"), "r") as yaml_file: #_PROJECT_ROOT
+    with open(os.path.join(_PROJECT_ROOT, "src/configs/config.yaml"), "r") as yaml_file: 
         cfg = yaml.safe_load(yaml_file)
         
     hparams ={  "lr": cfg["hyperparameters"]["learning_rate"],
@@ -26,7 +26,7 @@ def get_hparams():
     return hparams  
 
 def get_paths():
-    with open(os.path.join("", "src/configs/config.yaml"), "r") as yaml_file: #_PROJECT_ROOT
+    with open(os.path.join(_PROJECT_ROOT, "src/configs/config.yaml"), "r") as yaml_file:
         cfg = yaml.safe_load(yaml_file)
         
     paths = {  "training_data_path": cfg["paths"]["training_data_path"],
