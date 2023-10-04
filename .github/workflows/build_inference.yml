@@ -2,7 +2,7 @@
 # This file is run automatically run when a commit is made to the main branch
 
 
-name: "Deploy inference container"
+name: "Build and push inference container"
 
 on:
   push:
@@ -15,7 +15,11 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
+    - name: Install Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11' 
     - name: Build inference docker container
       run: |
         docker build -f inference.dockerfile . --platform linux/amd64 -t ${{ secrets.DOCKERHUB_USER }}/inference
