@@ -1,16 +1,14 @@
 import pytorch_lightning as pl
 from torch import save, tensor
 import pandas as pd
-from model import LightningModel
+from src.models.model import LightningModel
 import hydra
 
 # loads the data from the processed data folder
-def load_data():
-    return pd.read_csv('data/processed/data.csv')
+def load_data(training_data_path: str):
+    return pd.read_csv(training_data_path)
 
-
-# trains the lightning model with the data
-def train(data: pd.DataFrame, hparams: dict):
+def normalize_data(data: pd.DataFrame):
     # convert data to tensors, where all columns in the dataframe
     # except TAc are inputs and TAc is the target
     x = tensor(data.drop(columns=["TAc"]).values).float()
@@ -20,6 +18,12 @@ def train(data: pd.DataFrame, hparams: dict):
     for i in range(x.shape[1]):
         x[:,i] = (x[:,i] - x[:,i].min()) / (x[:,i].max() - x[:,i].min())
 
+    return x,y
+
+# trains the lightning model with the data
+def train(data: pd.DataFrame, hparams: dict):
+    # get data
+    x,y = normalize_data(data)
     model = LightningModel(hparams)
     
     checkpoint_callback = pl.callbacks.ModelCheckpoint(
@@ -48,7 +52,7 @@ def save_model(model: LightningModel):
 
 @hydra.main(config_path = "../configs/", config_name="config.yaml", version_base = "1.2")
 def main(cfg):
-    data = load_data()
+    data = load_data(cfg.paths.training_data_path)
     
     hparams ={  "lr": cfg.hyperparameters.learning_rate,
                 "epochs": cfg.hyperparameters.epochs,
