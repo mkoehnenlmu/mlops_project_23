@@ -12,5 +12,4 @@ WORKDIR /
 
 RUN pip3 install --no-cache-dir -r requirements.txt
 
-# run a sleep command suitable for bashing into the container to check things
-CMD ["sleep", "infinity"]
+CMD ["pytest", "-v"]
