@@ -48,6 +48,10 @@ class LightningModel(pl.LightningModule):
             raise NotImplementedError
 
     def forward(self, x):
+        if x.ndim != 2:
+            raise ValueError('Expected input to a 2D tensor')
+        if x.shape[1] != self.hyperparams["input_size"]:
+            raise ValueError(f'Expected each sample to have shape [{self.hyperparams["input_size"]}]')
         return self.model(x)
     
     def training_step(self, batch, batch_idx):
