@@ -1,0 +1,25 @@
+# github workflow file that creates and uploades the inference container to Docker Hub
+# This file is run automatically run when a commit is made to the main branch
+
+
+name: "Deploy inference container"
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Build inference docker container
+      run: |
+        docker build -f inference.dockerfile . --platform linux/amd64 -t ${{ secrets.DOCKERHUB_USER }}/inference
+    - name: Push inference docker container to Docker Hub
+      run: |
+        docker login -u ${{ secrets.DOCKERHUB_USER }} -p ${{ secrets.DOCKER_PASSWORD }}
+        docker push ${{ secrets.DOCKERHUB_USER }}/inference

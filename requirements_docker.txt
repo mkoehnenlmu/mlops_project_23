@@ -1,0 +1,7 @@
+-e .
+
+setuptools
+pandas
+dvc
+hydra-core
+pytorch-lightning

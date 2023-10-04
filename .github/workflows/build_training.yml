@@ -1,0 +1,30 @@
+# github workflow file that creates and uploades the training container to Docker Hub
+# This file is run automatically run when a commit is made to the main branch
+
+name: "Build training container"
+
+# run on push or PR to main branch
+# TODO: Remove PR to main branch once this works
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Build training docker container
+      run: |
+        docker build -f training.dockerfile . --platform linux/amd64 -t ${{ secrets.DOCKERHUB_USER }}/training:test
+    - name: Push inference docker container to Docker Hub
+      run: |
+        docker login -u ${{ secrets.DOCKERHUB_USER }} -p ${{ secrets.DOCKER_PASSWORD }}
+        docker push ${{ secrets.DOCKERHUB_USER }}/training:test
