@@ -13,15 +13,15 @@ def get_hparams():
                            "src/configs/config.yaml"), "r") as yaml_file:
         cfg = yaml.safe_load(yaml_file)
 
-    hparams = {"lr": cfg.hyperparameters.learning_rate,
-               "epochs": cfg.hyperparameters.epochs,
-               "batch_size": cfg.hyperparameters.batch_size,
-               "input_size": cfg.hyperparameters.input_size,
-               "output_size": cfg.hyperparameters.output_size,
-               "hidden_size": cfg.hyperparameters.hidden_size,
-               "num_layers":  cfg.hyperparameters.num_layers,
-               "criterion":  cfg.hyperparameters.criterion,
-               "optimizer":  cfg.hyperparameters.optimizer,
+    hparams = {"lr": cfg["hyperparameters"]["learning_rate"],
+               "epochs": cfg["hyperparameters"]["epochs"],
+               "batch_size": cfg["hyperparameters"]["batch_size"],
+               "input_size": cfg["hyperparameters"]["input_size"],
+               "output_size": cfg["hyperparameters"]["output_size"],
+               "hidden_size": cfg["hyperparameters"]["hidden_size"],
+               "num_layers":  cfg["hyperparameters"]["num_layers"],
+               "criterion":  cfg["hyperparameters"]["criterion"],
+               "optimizer":  cfg["hyperparameters"]["optimizer"],
                }
     return hparams
 

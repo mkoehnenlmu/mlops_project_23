@@ -3,7 +3,7 @@ import os
 import hydra
 import pandas as pd
 import pytorch_lightning as pl
-from model import LightningModel
+from src.models.model import LightningModel
 from torch import save, tensor
 
 
