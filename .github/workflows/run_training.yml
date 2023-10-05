@@ -35,7 +35,7 @@ jobs:
       uses: 'google-github-actions/setup-gcloud@v1'
       with:
         version: '>= 416.0.0'
-        project_id: 'wide-axiom-401015'
+        project_id: '110692824256'
     - name: 'Use gcloud CLI'
       run: 'gcloud info'    
     - name: 'Run training container in compute engine'
