@@ -16,7 +16,8 @@ on:
 # https://github.com/google-github-actions/auth#setup
 
 jobs:
-  job_id:
+  training:
+    runs-on: ubuntu-latest
     # Add "id-token" with the intended permissions.
     permissions:
       contents: 'read'
@@ -24,7 +25,6 @@ jobs:
 
     steps:
     - uses: 'actions/checkout@v4'
-
     - id: 'auth'
       name: 'Authenticate to Google Cloud'
       uses: 'google-github-actions/auth@v1'
