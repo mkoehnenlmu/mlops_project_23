@@ -5,3 +5,4 @@ pandas
 dvc
 hydra-core
 pytorch-lightning
+google-cloud-storage
