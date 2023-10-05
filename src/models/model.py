@@ -1,11 +1,8 @@
-# define a lightning model
-
-# Path: src/models/model.py
 import pytorch_lightning as pl
 import torch.nn as nn
 from torch import optim
-
 from torch.utils.data import DataLoader
+
 
 class LightningModel(pl.LightningModule):
 
@@ -20,9 +17,11 @@ class LightningModel(pl.LightningModule):
         self.model = nn.Sequential(
             nn.Linear(hparams["input_size"], hparams["hidden_size"]),
             nn.ReLU(),
-            nn.Linear(int(hparams["hidden_size"]), int(hparams["hidden_size"]/2)),
+            nn.Linear(int(hparams["hidden_size"]),
+                      int(hparams["hidden_size"]/2)),
             nn.ReLU(),
-            nn.Linear(int(hparams["hidden_size"]/2), int(hparams["hidden_size"]/4)),
+            nn.Linear(int(hparams["hidden_size"]/2),
+                      int(hparams["hidden_size"]/4)),
             nn.ReLU(),
             nn.Linear(int(hparams["hidden_size"]/4), hparams["output_size"]),
         )
@@ -34,11 +33,11 @@ class LightningModel(pl.LightningModule):
             self.loss = nn.NLLLoss()
         else:
             raise NotImplementedError
-    
+
     def train_dataloader(self, data):
         return DataLoader(data, batch_size=self.hyperparams["batch_size"],
                           shuffle=True)
-    
+
     def configure_optimizers(self):
         if self.hyperparams["optimizer"] == "Adam":
             return optim.Adam(self.parameters(), lr=self.hyperparams["lr"])
@@ -51,13 +50,14 @@ class LightningModel(pl.LightningModule):
         if x.ndim != 2:
             raise ValueError('Expected input to a 2D tensor')
         if x.shape[1] != self.hyperparams["input_size"]:
-            raise ValueError(f'Expected each sample to have shape [{self.hyperparams["input_size"]}]')
+            raise ValueError('Expected each sample to have shape'
+                             + f'[{self.hyperparams["input_size"]}]')
         return self.model(x)
-    
+
     def training_step(self, batch, batch_idx):
         x, y = batch
         y_hat = self.forward(x)
         loss = self.loss(y_hat, y)
         self.log('train_loss', loss)
-        
+
         return {'loss': loss}
