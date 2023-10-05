@@ -43,4 +43,4 @@ jobs:
           gcloud compute instances create-with-container training \
           --container-image=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/training:latest \
           --zone=europe-west3-c --machine-type=c2d-highcpu-4 \
-          --container-restart-policy=never
+          --container-restart-policy='never'
