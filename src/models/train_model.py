@@ -3,9 +3,23 @@ from torch import save, tensor
 import pandas as pd
 from src.models.model import LightningModel
 import hydra
+import os
 
 # loads the data from the processed data folder
 def load_data(training_data_path: str):
+
+    # if training data path is available
+    if not os.path.exists(training_data_path):
+        # pull the training data from google cloud storage
+
+        from google.cloud import storage
+        # on Cloud Run, the service account credentials will be automatically available
+        storage_client = storage.Client()
+        bucket = storage_client.get_bucket("delay_mlops_data")
+        blob = bucket.blob("processed/data.csv")
+
+        # store the blob in training data path
+        blob.download_to_filename(training_data_path)
     return pd.read_csv(training_data_path)
 
 def normalize_data(data: pd.DataFrame):
@@ -48,6 +62,8 @@ def train(data: pd.DataFrame, hparams: dict):
 def save_model(model: LightningModel):
     # save the trained model to the shared directory on disk
     save(model.state_dict(), "models/model.pth")
+
+    # TODO: push the model to cloud storage with the tag "latest"
 
 
 @hydra.main(config_path = "../configs/", config_name="config.yaml", version_base = "1.2")
