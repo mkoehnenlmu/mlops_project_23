@@ -39,8 +39,11 @@ jobs:
       - name: 'Use gcloud CLI'
         run: 'gcloud info'
       - name: 'Run training container in compute engine'
-        run:
-          gcloud compute instances create-with-container training \
-          --container-image=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/training:latest \
-          --zone=europe-west3-c --machine-type=c2d-highcpu-4 \
+        run: >
+          gcloud compute instances
+          create-with-container
+          training
+          --container-image=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/training:latest
+          --zone=europe-west3-c
+          --machine-type=c2d-highcpu-4
           --container-restart-policy='never'
