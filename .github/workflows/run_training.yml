@@ -38,8 +38,9 @@ jobs:
           project_id: 'wide-axiom-401015'
       - name: 'Use gcloud CLI'
         run: 'gcloud info'
-      - name: 'Delete existing instance, if it exists'
-        run: gcloud compute instances delete --zone=europe-west3-c training
+      # TODO: check if exists and only then run deletion
+      #- name: 'Delete existing instance, if it exists'
+      #  run: gcloud -q compute instances delete --zone=europe-west3-c training
       - name: 'Run training container in compute engine'
         run: >
           gcloud compute instances
