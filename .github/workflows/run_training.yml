@@ -31,12 +31,14 @@ jobs:
       with:
         workload_identity_provider: 'projects/110692824256/locations/global/workloadIdentityPools/mlops/providers/mlops'
         service_account: 'actions-auth@$wide-axiom-401015.iam.gserviceaccount.com'
-    - name: Setup Google Cloud SDK
-        uses: google-github-actions/setup-gcloud@v1
-        with:
-          version: ">= 363.0.0"
-          project_id: wide-axiom-401015
-    - name: Run training container in compute engine
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v1'
+      with:
+        version: '>= 416.0.0'
+        project_id: 'wide-axiom-401015'
+    - name: 'Use gcloud CLI'
+      run: 'gcloud info'    
+    - name: 'Run training container in compute engine'
       run:
         gcloud compute instances create-with-container training \
         --container-image=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/training:latest \
