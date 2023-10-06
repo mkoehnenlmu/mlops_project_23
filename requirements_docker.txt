@@ -1,8 +1,8 @@
 -e .
 
 setuptools
+lightning
 pandas
 dvc
 hydra-core
-pytorch-lightning
 google-cloud-storage

@@ -1,11 +1,11 @@
 # github workflow file that runs the training container in google cloud compute engine
 # This file is run automatically run when a new container was pushed by the other workflow
 
-name: "Run training container in google cloud compute engine"
+name: "Run inference container in google cloud compute engine"
 
 on:
   workflow_run:
-    workflows: [build_training]
+    workflows: [build_inference]
     types:
       - completed
 
@@ -38,14 +38,16 @@ jobs:
       # TODO: check if exists and only then run deletion
       #- name: 'Delete existing instance, if it exists'
       #  run: gcloud -q compute instances delete --zone=europe-west3-c training
-      - name: 'Run training container in compute engine'
+      - name: 'Run inference container in compute engine'
         run: >
           gcloud compute instances
           create-with-container
-          training
+          inference
           --service-account=actions-auth@wide-axiom-401015.iam.gserviceaccount.com
-          --container-image=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/training:latest
+          --container-image=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/inference:latest
           --zone=europe-west3-c
-          --machine-type=c2d-highcpu-8 
-          --boot-disk-size=50GB
+          --machine-type=c2d-highcpu-4
+          --boot-disk-size=25GB
           --container-restart-policy='never'
+
+# TODO: Autoscaling, is compute engine even the right choice?

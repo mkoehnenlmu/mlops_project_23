@@ -16,6 +16,8 @@ RUN mkdir -p models/
 
 # install python packages
 WORKDIR /
+# Install torch without gpu support
+RUN pip3 install torch --index-url https://download.pytorch.org/whl/cpu
 RUN pip3 install --no-cache-dir -r /requirements.txt
 
 # download model and run inference
