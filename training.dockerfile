@@ -18,7 +18,8 @@ WORKDIR /
 # set dvc credentials
 ENV DVC_SECRET=$DVC_SECRET
 
-# install python packages
+# install python packages and torch without gpu support
+RUN pip3 install torch --index-url https://download.pytorch.org/whl/cpu
 RUN pip3 install --no-cache-dir -r /requirements.txt
 
 # download data, run training and push the model

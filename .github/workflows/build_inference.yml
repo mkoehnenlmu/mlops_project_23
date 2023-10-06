@@ -1,7 +1,6 @@
 # github workflow file that creates and uploades the inference container to Docker Hub
 # This file is run automatically run when a commit is made to the main branch
 
-
 name: "Build and push inference container"
 
 on:

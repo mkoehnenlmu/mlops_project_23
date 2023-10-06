@@ -10,6 +10,8 @@ COPY requirements_tests.txt requirements.txt
 
 WORKDIR /
 
+RUN pip3 install torch --index-url https://download.pytorch.org/whl/cpu
+
 RUN pip3 install --no-cache-dir -r requirements.txt
 
 CMD ["pytest", "-v"]

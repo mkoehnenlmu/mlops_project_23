@@ -1,0 +1,51 @@
+# github workflow file that runs the training container in google cloud compute engine
+# This file is run automatically run when a new container was pushed by the other workflow
+
+name: "Run training container in google cloud compute engine"
+
+on:
+  workflow_run:
+    workflows: [ build_training ]
+    types:
+      - completed
+
+# Documentation for setup (easiest in google cloud shell)
+# https://github.com/google-github-actions/auth#setup
+
+jobs:
+  training:
+    runs-on: ubuntu-latest
+    # Add "id-token" with the intended permissions.
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - uses: 'actions/checkout@v4'
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          workload_identity_provider: 'projects/110692824256/locations/global/workloadIdentityPools/mlops/providers/mlops'
+          service_account: 'actions-auth@wide-axiom-401015.iam.gserviceaccount.com'
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v1'
+        with:
+          version: '>= 416.0.0'
+          project_id: 'wide-axiom-401015'
+      - name: 'Use gcloud CLI'
+        run: 'gcloud info'
+      # TODO: check if exists and only then run deletion
+      #- name: 'Delete existing instance, if it exists'
+      #  run: gcloud -q compute instances delete --zone=europe-west3-c training
+      - name: 'Run training container in compute engine'
+        run: >
+          gcloud compute instances
+          create-with-container
+          training
+          --service-account=actions-auth@wide-axiom-401015.iam.gserviceaccount.com
+          --container-image=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/training:latest
+          --zone=europe-west3-c
+          --machine-type=c2d-highcpu-8 
+          --boot-disk-size=50GB
+          --container-restart-policy='never'

@@ -7,11 +7,9 @@ name: "Build and push training container"
 # TODO: Remove PR to main branch once this works
 on:
   push:
-    branches:
-      - main
-#  pull_request:
-#    branches:
-#      - main
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
