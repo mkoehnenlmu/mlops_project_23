@@ -43,6 +43,8 @@ class LightningModel(pl.LightningModule):
             return optim.Adam(self.parameters(), lr=self.hyperparams["lr"])
         elif self.hyperparams["optimizer"] == "SGD":
             return optim.SGD(self.parameters(), lr=self.hyperparams["lr"])
+        elif self.hyperparams["optimizer"] == "AdamW":
+            return optim.AdamW(self.parameters(), lr=self.hyperparams["lr"])
         else:
             raise NotImplementedError
 
