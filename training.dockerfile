@@ -13,6 +13,8 @@ COPY src/ src/
 
 # create directory for model storage
 RUN mkdir -p models/
+RUN mkdir -p data/processed/
+
 
 WORKDIR /
 # set dvc credentials
