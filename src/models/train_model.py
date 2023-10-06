@@ -39,7 +39,6 @@ def normalize_data(data: pd.DataFrame):
 
     return x, y
 
-
 # trains the lightning model with the data
 def train(data: pd.DataFrame, hparams: dict):
     # get data
