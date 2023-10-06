@@ -5,7 +5,7 @@ name: "Run inference container in google cloud compute engine"
 
 on:
   workflow_run:
-    workflows: [build_inference]
+    workflows: [ build_inference ]
     types:
       - completed
 
