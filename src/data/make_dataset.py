@@ -9,6 +9,7 @@ from dotenv import find_dotenv, load_dotenv
 
 import src.features.build_features as bf
 
+
 @click.command()
 @click.argument('input_filepath', type=click.Path(exists=True))
 @click.argument('output_filepath', type=click.Path())

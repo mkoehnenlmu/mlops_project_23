@@ -39,6 +39,7 @@ def normalize_data(data: pd.DataFrame):
 
     return x, y
 
+
 # trains the lightning model with the data
 def train(data: pd.DataFrame, hparams: dict):
     # get data
@@ -69,7 +70,7 @@ def train(data: pd.DataFrame, hparams: dict):
 def save_model(model: LightningModel, tag: str = "latest",
                push: bool = True):
     # save the trained model to the shared directory on disk
-    save(model.state_dict(), f"models/model.pth")
+    save(model.state_dict(), "models/model.pth")
 
     # push the model to google cloud storage
     if push:
@@ -80,8 +81,8 @@ def save_model(model: LightningModel, tag: str = "latest",
         bucket = storage_client.get_bucket("delay_mlops_data")
         # upload the trained model to the bucket with
         # the tag set
-        blob = bucket.blob(f"models/model.pth")
-        blob.upload_from_filename(f"models/model.pth")
+        blob = bucket.blob("models/model.pth")
+        blob.upload_from_filename("models/model.pth")
 
 
 @hydra.main(config_path="../configs/",
