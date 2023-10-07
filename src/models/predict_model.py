@@ -33,7 +33,7 @@ def download_model_from_gcs():
 
 
 def get_hparams():
-    with open("../configs/config.yaml", "r") as yaml_file:
+    with open("./src/configs/config.yaml", "r") as yaml_file:
         cfg = yaml.safe_load(yaml_file)
 
     hparams = {"lr": cfg["hyperparameters"]["learning_rate"],
@@ -50,12 +50,12 @@ def get_hparams():
 
 
 def load_model():
-    if not os.path.exists('../../models/model.pth'):
+    if not os.path.exists('./models/model.pth'):
         download_model_from_gcs()
     hparams = get_hparams()
     # Load the model
     model = LightningModel(hparams=hparams)
-    loaded_state_dict = torch.load('../../models/model.pth')
+    loaded_state_dict = torch.load('./models/model.pth')
     model.load_state_dict(loaded_state_dict)
 
     return model
@@ -72,6 +72,7 @@ async def model_predict(model: LightningModel, input_data: str):
                             detail="Invalid input data format")
 
     input_tensor = torch.tensor(input_data, dtype=torch.float32)
+    input_tensor = input_tensor.view(1, -1)
     prediction = model.forward(input_tensor)
 
     return prediction
