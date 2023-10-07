@@ -11,3 +11,4 @@ hyperparameters:
   optimizer: "Adam"
 paths:
   training_data_path: 'data/processed/data.csv'
+  model_path: 'models/model.pth'
