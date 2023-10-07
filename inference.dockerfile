@@ -6,10 +6,9 @@ RUN apt-get update && \
     apt clean && rm -rf /var/lib/apt/lists/*
 
 # copy inference code
-COPY requirements_docker.txt /requirements.txt
+COPY requirements_inference.txt /requirements.txt
 COPY setup.py setup.py
 COPY src/ src/
-#COPY data/ data/
 
 # create directory for model storage
 RUN mkdir -p models/
@@ -20,5 +19,5 @@ WORKDIR /
 RUN pip3 install torch --index-url https://download.pytorch.org/whl/cpu
 RUN pip3 install --no-cache-dir -r /requirements.txt
 
-# download model and run inference
-CMD ["python3", "src/models/predict_model.py"]
+# start app that runs inference
+CMD ["uvicorn", "src.models.predict_model:app", "--host", "0.0.0.0", "--port", "80"]
