@@ -1,11 +1,12 @@
 import pytorch_lightning as pl
+import torch
 import torch.nn as nn
 from torch import optim
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset
 
 
 class LightningModel(pl.LightningModule):
-    def __init__(self, hparams):
+    def __init__(self, hparams: dict):
         super(LightningModel, self).__init__()
 
         self.hyperparams = hparams
@@ -49,11 +50,10 @@ class LightningModel(pl.LightningModule):
         else:
             raise NotImplementedError
 
-    def train_dataloader(self, data):
-        return DataLoader(data, batch_size=self.hyperparams["batch_size"],
-                          shuffle=True)
+    def train_dataloader(self, data: Dataset):
+        return DataLoader(dataset=data, batch_size=self.hyperparams["batch_size"], shuffle=True)
 
-    def configure_optimizers(self):
+    def configure_optimizers(self) -> optim.Optimizer:
         if self.hyperparams["optimizer"] == "Adam":
             return optim.Adam(self.parameters(), lr=self.hyperparams["lr"])
         elif self.hyperparams["optimizer"] == "SGD":
@@ -63,9 +63,9 @@ class LightningModel(pl.LightningModule):
         else:
             raise NotImplementedError
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> float:
         if x.ndim != 2:
-            raise ValueError("Expected input to a 2D tensor")
+            raise ValueError("Expected input to be a 2D tensor")
         if x.shape[1] != self.hyperparams["input_size"]:
             raise ValueError(
                 "Expected each sample to have shape"
@@ -76,7 +76,7 @@ class LightningModel(pl.LightningModule):
         else:
             return self.model(x).clamp(min=0, max=1)
 
-    def training_step(self, batch, batch_idx):
+    def training_step(self, batch: tuple) -> dict:
         x, y = batch
         y_hat = self.forward(x)
         loss = self.loss(y_hat, y.unsqueeze(1))
