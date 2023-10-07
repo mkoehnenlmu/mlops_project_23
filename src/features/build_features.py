@@ -1,7 +1,8 @@
 import pandas as pd
 
 
-# Function that takes in a dataframe and returns a dataframe with the following features:
+# Function that takes in a dataframe and returns a dataframe
+# with the following features:
 def build_features(ic_trains: pd.DataFrame):
 
     # Add some time features
@@ -38,5 +39,5 @@ def build_features(ic_trains: pd.DataFrame):
 
     ic_trains["TIP"] = [int(i) if isinstance(i, int) else 0
                         for i in ic_trains["TIP"]]
-    
+
     return ic_trains
