@@ -4,8 +4,10 @@
 name: "Run training container in google cloud compute engine"
 
 on:
+  pull_request:
+    branches: [ main ]
   workflow_run:
-    workflows: [ build_training ]
+    workflows: [Build and push training container]
     types:
       - completed
 
@@ -44,6 +46,7 @@ jobs:
           create-with-container
           training
           --service-account=actions-auth@wide-axiom-401015.iam.gserviceaccount.com
+          --scopes=https://www.googleapis.com/auth/cloud-platform
           --container-image=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/training:latest
           --zone=europe-west3-c
           --machine-type=c2d-highcpu-8 

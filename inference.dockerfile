@@ -9,7 +9,7 @@ RUN apt-get update && \
 COPY requirements_docker.txt /requirements.txt
 COPY setup.py setup.py
 COPY src/ src/
-COPY data/ data/
+#COPY data/ data/
 
 # create directory for model storage
 RUN mkdir -p models/

@@ -16,8 +16,8 @@ def load_data(training_data_path: str):
 
         from google.cloud import storage
 
-        # on Cloud Run, the service account credentials will be automatically
-        # available
+        # on Cloud Compute Engine, the service account credentials
+        # will be automatically available
         storage_client = storage.Client()
         bucket = storage_client.get_bucket("delay_mlops_data")
         blob = bucket.blob("processed/data.csv")
@@ -38,7 +38,6 @@ def normalize_data(data: pd.DataFrame):
         x[:, i] = (x[:, i] - x[:, i].min()) / (x[:, i].max() - x[:, i].min())
 
     return x, y
-
 
 # trains the lightning model with the data
 def train(data: pd.DataFrame, hparams: dict):
@@ -67,11 +66,22 @@ def train(data: pd.DataFrame, hparams: dict):
 
 
 # save the model in the models folder
-def save_model(model: LightningModel):
+def save_model(model: LightningModel, tag: str = "latest",
+               push: bool = True):
     # save the trained model to the shared directory on disk
-    save(model.state_dict(), "models/model.pth")
+    save(model.state_dict(), f"models/model.pth")
 
-    # TODO: push the model to cloud storage with the tag "latest"
+    # push the model to google cloud storage
+    if push:
+        from google.cloud import storage
+        # on Cloud Compute Engine, the service account credentials
+        # will be automatically available
+        storage_client = storage.Client()
+        bucket = storage_client.get_bucket("delay_mlops_data")
+        # upload the trained model to the bucket with
+        # the tag set
+        blob = bucket.blob(f"models/model.pth")
+        blob.upload_from_filename(f"models/model.pth")
 
 
 @hydra.main(config_path="../configs/",
@@ -93,7 +103,9 @@ def main(cfg):
     }
 
     model = train(data, hparams)
-    save_model(model)
+    # set tag as current timestamp
+    tag = pd.Timestamp.now().strftime("%Y%m%d%H%M")
+    save_model(model, push=True, tag=tag)
 
 
 if __name__ == "__main__":
