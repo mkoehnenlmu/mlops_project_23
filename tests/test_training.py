@@ -50,3 +50,20 @@ def test_model_logs() -> None:
 
     # Assert logged loss
     assert model.logger.log_dir is not None, "Train loss has not been logged."
+
+
+@pytest.mark.skipif(not os.path.exists(get_paths()["training_data_path"]),
+                    reason="Data files not found")
+def test_model_saved():
+    """test that model is saved after training in src.models.train_model.py"""
+    data = load_data(get_paths()["training_data_path"])
+    sample_data = data[:5]
+    hparams = get_hparams()
+
+    # Call the train function with sample data and hyperparameters
+    train(sample_data, hparams)
+
+    # Assert that the model is saved
+    assert os.path.exists("./models/model.pth"), "Model not saved."
+
+# the following tests complete test coverage for src.models.train_model.py
