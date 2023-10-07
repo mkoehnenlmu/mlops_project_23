@@ -6,6 +6,7 @@ import pandas as pd
 
 from pathlib import Path
 from dotenv import find_dotenv, load_dotenv
+from typing import List
 
 import src.features.build_features as bf
 
@@ -13,14 +14,14 @@ import src.features.build_features as bf
 @click.command()
 @click.argument('input_filepath', type=click.Path(exists=True))
 @click.argument('output_filepath', type=click.Path())
-def main(input_filepath, output_filepath):
+def main(input_filepath: str, output_filepath: str):
     """ Runs data processing scripts to turn raw data from
     (../input_filepath) into cleaned data ready to be analyzed
     (saved in ../output_filepath).
     """
     logger = logging.getLogger(__name__)
     logger.info('making final data set from raw data')
-    datasets = []
+    datasets: List[pd.DataFrame] = []
 
     for file in os.listdir(input_filepath):
         if ".csv" in file:
@@ -39,7 +40,7 @@ def main(input_filepath, output_filepath):
                                        "TSC", "TA", "TIR", "index",
                                        "TID", "TIT", "TIM", "TAA"], axis=1)
 
-    final_dataset.to_csv("./data/processed/data.csv", index=False)
+    final_dataset.to_csv(output_filepath, index=False)
 
 
 if __name__ == '__main__':
@@ -53,4 +54,5 @@ if __name__ == '__main__':
     # load up the .env entries as environment variables
     load_dotenv(find_dotenv())
 
-    main(["./data/raw/", "./data/processed/"])
+    main(input_filepath="./data/raw/",
+         output_filepath="./data/processed/data.csv")

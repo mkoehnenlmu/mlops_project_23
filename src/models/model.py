@@ -1,12 +1,12 @@
 import pytorch_lightning as pl
+import torch
 import torch.nn as nn
 from torch import optim
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset
 
 
 class LightningModel(pl.LightningModule):
-
-    def __init__(self, hparams):
+    def __init__(self, hparams: dict):
         super(LightningModel, self).__init__()
 
         self.hyperparams = hparams
@@ -17,13 +17,11 @@ class LightningModel(pl.LightningModule):
         self.model = nn.Sequential(
             nn.Linear(hparams["input_size"], hparams["hidden_size"]),
             nn.ReLU(),
-            nn.Linear(int(hparams["hidden_size"]),
-                      int(hparams["hidden_size"]/2)),
+            nn.Linear(int(hparams["hidden_size"]), int(hparams["hidden_size"] / 2)),
             nn.ReLU(),
-            nn.Linear(int(hparams["hidden_size"]/2),
-                      int(hparams["hidden_size"]/4)),
+            nn.Linear(int(hparams["hidden_size"] / 2), int(hparams["hidden_size"] / 4)),
             nn.ReLU(),
-            nn.Linear(int(hparams["hidden_size"]/4), hparams["output_size"]),
+            nn.Linear(int(hparams["hidden_size"] / 4), hparams["output_size"]),
         )
 
         # use l2 loss
@@ -34,11 +32,10 @@ class LightningModel(pl.LightningModule):
         else:
             raise NotImplementedError
 
-    def train_dataloader(self, data):
-        return DataLoader(data, batch_size=self.hyperparams["batch_size"],
-                          shuffle=True)
+    def train_dataloader(self, data: Dataset):
+        return DataLoader(dataset=data, batch_size=self.hyperparams["batch_size"], shuffle=True)
 
-    def configure_optimizers(self):
+    def configure_optimizers(self) -> optim.Optimizer:
         if self.hyperparams["optimizer"] == "Adam":
             return optim.Adam(self.parameters(), lr=self.hyperparams["lr"])
         elif self.hyperparams["optimizer"] == "SGD":
@@ -48,18 +45,17 @@ class LightningModel(pl.LightningModule):
         else:
             raise NotImplementedError
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> float:
         if x.ndim != 2:
-            raise ValueError('Expected input to a 2D tensor')
+            raise ValueError("Expected input to a 2D tensor")
         if x.shape[1] != self.hyperparams["input_size"]:
-            raise ValueError('Expected each sample to have shape'
-                             + f'[{self.hyperparams["input_size"]}]')
+            raise ValueError("Expected each sample to have shape" + f'[{self.hyperparams["input_size"]}]')
         return self.model(x)
 
-    def training_step(self, batch, batch_idx):
+    def training_step(self, batch: tuple) -> dict:
         x, y = batch
         y_hat = self.forward(x)
         loss = self.loss(y_hat, y)
-        self.log('train_loss', loss)
+        self.log("train_loss", loss)
 
-        return {'loss': loss}
+        return {"loss": loss}
