@@ -9,7 +9,6 @@ from torch import save, tensor
 
 # loads the data from the processed data folder
 def load_data(training_data_path: str):
-
     # if training data path is available
     if not os.path.exists(training_data_path):
         # pull the training data from google cloud storage
@@ -66,15 +65,22 @@ def train(data: pd.DataFrame, hparams: dict):
     return model
 
 
+def evaluate_model(model: LightningModel, data: pd.DataFrame):
+    x, y = normalize_data(data)
+    preds = model.forward(x)
+    rmse = ((preds - y) ** 2).mean().sqrt()
+    return rmse
+
+
 # save the model in the models folder
-def save_model(model: LightningModel, tag: str = "latest",
-               push: bool = True):
+def save_model(model: LightningModel, tag: str = "latest", push: bool = True):
     # save the trained model to the shared directory on disk
     save(model.state_dict(), "models/model.pth")
 
     # push the model to google cloud storage
     if push:
         from google.cloud import storage
+
         # on Cloud Compute Engine, the service account credentials
         # will be automatically available
         storage_client = storage.Client()
@@ -85,8 +91,7 @@ def save_model(model: LightningModel, tag: str = "latest",
         blob.upload_from_filename("models/model.pth")
 
 
-@hydra.main(config_path="../configs/",
-            config_name="config.yaml",
+@hydra.main(config_path="../configs/", config_name="config.yaml",
             version_base="1.2")
 def main(cfg):
     data = load_data(cfg.paths.training_data_path)
@@ -104,9 +109,8 @@ def main(cfg):
     }
 
     model = train(data, hparams)
-    # set tag as current timestamp
-    tag = pd.Timestamp.now().strftime("%Y%m%d%H%M")
-    save_model(model, push=True, tag=tag)
+
+    save_model(model, push=True)
 
 
 if __name__ == "__main__":

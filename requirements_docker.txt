@@ -1,8 +1,0 @@
--e .
-
-setuptools
-lightning
-pandas
-dvc
-hydra-core
-google-cloud-storage

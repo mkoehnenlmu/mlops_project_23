@@ -1,0 +1,13 @@
+-e .
+
+setuptools
+lightning
+pandas
+dvc
+hydra-core
+google-cloud-storage
+swig >= 4.1.1
+smac >= 2.0.0
+matplotlib
+numpy
+ConfigSpace
