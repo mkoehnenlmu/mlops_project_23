@@ -3,10 +3,11 @@ import torch
 import torch.nn as nn
 from torch import optim
 from torch.utils.data import DataLoader, Dataset
+from typing import Dict, Any, Tuple
 
 
 class LightningModel(pl.LightningModule):
-    def __init__(self, hparams: dict):
+    def __init__(self, hparams: Dict[str, Any]):
         super(LightningModel, self).__init__()
 
         self.hyperparams = hparams
@@ -50,8 +51,10 @@ class LightningModel(pl.LightningModule):
         else:
             raise NotImplementedError
 
-    def train_dataloader(self, data: Dataset):
-        return DataLoader(dataset=data, batch_size=self.hyperparams["batch_size"], shuffle=True)
+    def train_dataloader(self, data: Dataset) -> DataLoader:
+        return DataLoader(
+            dataset=data, batch_size=self.hyperparams["batch_size"], shuffle=True
+        )
 
     def configure_optimizers(self) -> optim.Optimizer:
         if self.hyperparams["optimizer"] == "Adam":
@@ -63,7 +66,7 @@ class LightningModel(pl.LightningModule):
         else:
             raise NotImplementedError
 
-    def forward(self, x: torch.Tensor) -> float:
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         if x.ndim != 2:
             raise ValueError("Expected input to be a 2D tensor")
         if x.shape[1] != self.hyperparams["input_size"]:
@@ -76,7 +79,9 @@ class LightningModel(pl.LightningModule):
         else:
             return self.model(x).clamp(min=0, max=1)
 
-    def training_step(self, batch: tuple) -> dict:
+    def training_step(
+        self, batch: Tuple[torch.Tensor, torch.Tensor]
+    ) -> Dict[str, torch.Tensor]:
         x, y = batch
         y_hat = self.forward(x)
         loss = self.loss(y_hat, y.unsqueeze(1))

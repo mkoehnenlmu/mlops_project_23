@@ -6,9 +6,13 @@ import pandas as pd
 def build_features(ic_trains: pd.DataFrame):
     # Add some time features
     # Month
-    ic_trains.loc[:, "MONTH"] = pd.to_datetime(ic_trains["TID"], format="%d.%m.%y").dt.month
+    ic_trains.loc[:, "MONTH"] = pd.to_datetime(
+        ic_trains["TID"], format="%d.%m.%y"
+    ).dt.month
     # Day of Week
-    ic_trains.loc[:, "DOW"] = pd.to_datetime(ic_trains["TID"], format="%d.%m.%y").dt.dayofweek
+    ic_trains.loc[:, "DOW"] = pd.to_datetime(
+        ic_trains["TID"], format="%d.%m.%y"
+    ).dt.dayofweek
     # Day
     ic_trains.loc[:, "DAY"] = pd.to_datetime(ic_trains["TID"], format="%d.%m.%y").dt.day
     # Hour
@@ -24,7 +28,9 @@ def build_features(ic_trains: pd.DataFrame):
     # save the number at the end of the TIN column as a new column
     ic_trains = ic_trains.reset_index()
     ic_trains["TNR"] = [
-        int(ic_trains.loc[i, "TIN"][3:]) if ic_trains.loc[i, "ICE"] == 1 else int(ic_trains.loc[i, "TIN"][2:])
+        int(ic_trains.loc[i, "TIN"][3:])
+        if ic_trains.loc[i, "ICE"] == 1
+        else int(ic_trains.loc[i, "TIN"][2:])
         for i in range(len(ic_trains["TIN"]))
     ]
     # TIM == arrival or departure

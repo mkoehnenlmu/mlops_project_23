@@ -1,12 +1,11 @@
 import os
-
 import hydra
 import pandas as pd
 import pytorch_lightning as pl
 import torch
 from src.models.model import LightningModel
 from torch import save, tensor, backends
-from typing import Tuple
+from typing import Tuple, Dict
 
 
 # loads the data from the processed data folder
@@ -50,7 +49,9 @@ def normalize_data(data: pd.DataFrame, dep_var: str = "DEP_DEL15") -> Tuple[torc
 
 
 # trains the lightning model with the data
-def train(x: torch.Tensor, y: torch.Tensor, hparams: dict):
+def train(
+    x: torch.Tensor, y: torch.Tensor, hparams: Dict[str, float]
+):
     # if the loss function is SoftMarginLoss,
     # transform the target from {0,1} to {-1,1}
     if hparams["criterion"] == "SoftMarginLoss":
@@ -118,7 +119,9 @@ def evaluate_model(model: LightningModel, data: pd.DataFrame):
 
 
 # save the model in the models folder
-def save_model(model: LightningModel, model_path: str, tag: str = "latest", push: bool = True):
+def save_model(
+    model: LightningModel, model_path: str, tag: str = "latest", push: bool = True
+) -> None:
     # save the trained model to the shared directory on disk
     save(model.state_dict(), model_path)
 

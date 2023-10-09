@@ -5,9 +5,7 @@ from google.cloud import storage
 import torch
 import os
 from src.models.model import LightningModel
-from typing import List
-
-# from enum import Enum
+from typing import List, Union, Dict
 import yaml
 
 
@@ -15,7 +13,7 @@ app = FastAPI()
 
 
 @app.get("/")
-def root() -> dict:
+def root() -> Dict[str, Union[str, HTTPStatus]]:
     """Health check."""
     response = {
         "message": HTTPStatus.OK.phrase,
@@ -24,7 +22,7 @@ def root() -> dict:
     return response
 
 
-def download_model_from_gcs():
+def download_model_from_gcs() -> None:
     # Download the model from Google Cloud Storage
     client = storage.Client()
     bucket = client.get_bucket("delay_mlops_data")
@@ -39,7 +37,7 @@ def get_cfg() -> dict:
     return cfg
 
 
-def get_hparams() -> dict:
+def get_hparams() -> Dict[str, float]:
     cfg = get_cfg()
 
     hparams = {
@@ -56,7 +54,7 @@ def get_hparams() -> dict:
     return hparams
 
 
-def get_paths() -> dict:
+def get_paths() -> Dict[str, str]:
     cfg = get_cfg()
     return cfg["paths"]
 
@@ -89,7 +87,7 @@ async def model_predict(model: LightningModel, input_data: str) -> float:
     return prediction
 
 
-def check_valid_input(input_data: str) -> dict:
+def check_valid_input(input_data: str) -> bool:
     if len(input_data.split(",")) != 90:
         return False
     else:
@@ -97,11 +95,13 @@ def check_valid_input(input_data: str) -> dict:
 
 
 @app.post("/predict")
-async def predict(input_data: str):
+async def predict(
+    input_data: str,
+) -> Dict[str, Union[str, HTTPStatus, List[Dict[str, float]]]]:
     if not check_valid_input(input_data):
         response = {
             "input": input_data,
-            "message": "The provided input data does not match" + "the required format",
+            "message": "The provided input data does not match the required format",
             "status-code": HTTPStatus.BAD_REQUEST,
             "prediction": None,
         }
@@ -120,18 +120,20 @@ async def predict(input_data: str):
 
 
 @app.post("/batch_predict")
-async def batch_predict(input_data: List[str]) -> dict:
+async def batch_predict(
+    input_data: List[str],
+) -> Dict[str, Union[str, HTTPStatus, List[Dict[str, float]]]]:
     model = load_model()
     if not all(check_valid_input(data) for data in input_data):
         response = {
             "input": input_data,
-            "message": "The provided input data does not match" + "the required format",
+            "message": "The provided input data does not match the required format",
             "status-code": HTTPStatus.BAD_REQUEST,
             "prediction": None,
         }
     else:
         # Make the inference
-        predictions: List[dict] = []
+        predictions: List[Dict[str, float]] = []
         for data in input_data:
             prediction = await model_predict(model, data)
             # Return the inferred values "delay"
