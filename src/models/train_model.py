@@ -5,7 +5,7 @@ import pytorch_lightning as pl
 import torch
 from src.models.model import LightningModel
 from torch import save, tensor, backends
-from typing import Tuple, Dict
+from typing import Tuple, Dict, Any
 
 
 # loads the data from the processed data folder
@@ -49,9 +49,7 @@ def normalize_data(data: pd.DataFrame, dep_var: str = "DEP_DEL15") -> Tuple[torc
 
 
 # trains the lightning model with the data
-def train(
-    x: torch.Tensor, y: torch.Tensor, hparams: Dict[str, float]
-):
+def train(x: torch.Tensor, y: torch.Tensor, hparams: Dict[str, Any]):
     # if the loss function is SoftMarginLoss,
     # transform the target from {0,1} to {-1,1}
     if hparams["criterion"] == "SoftMarginLoss":
