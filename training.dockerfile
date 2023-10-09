@@ -9,6 +9,7 @@ RUN apt-get update && \
 COPY requirements_docker.txt /requirements.txt
 COPY setup.py setup.py
 COPY src/ src/
+COPY reports/ reports/
 #COPY data/ data/
 
 # create directory for model storage
@@ -26,4 +27,3 @@ RUN pip3 install --no-cache-dir -r /requirements.txt
 
 # download data, run training and push the model
 CMD ["python3", "src/models/train_model.py"]
-
