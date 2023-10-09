@@ -1,6 +1,41 @@
 import torch
 import pandas as pd
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Any
+import os
+import yaml
+
+from tests import _PROJECT_ROOT
+
+
+def get_cfg() -> Dict[str, Dict[str, Any]]:
+    with open(os.path.join(_PROJECT_ROOT, "src/configs/config.yaml"), "r") as yaml_file:
+        cfg = yaml.safe_load(yaml_file)
+
+    return cfg
+
+
+def get_hparams() -> Dict[str, Any]:
+    cfg = get_cfg()
+
+    hparams: Dict[str, Any] = {
+        "lr": cfg["hyperparameters"]["learning_rate"],
+        "epochs": 1,  # cfg["hyperparameters"]["epochs"],
+        "batch_size": cfg["hyperparameters"]["batch_size"],
+        "input_size": cfg["hyperparameters"]["input_size"],
+        "output_size": cfg["hyperparameters"]["output_size"],
+        "hidden_size": cfg["hyperparameters"]["hidden_size"],
+        "num_layers": cfg["hyperparameters"]["num_layers"],
+        "criterion": cfg["hyperparameters"]["criterion"],
+        "optimizer": cfg["hyperparameters"]["optimizer"],
+    }
+
+    return hparams
+
+
+def get_paths() -> Dict[str, str]:
+    cfg = get_cfg()
+
+    return cfg["paths"]
 
 
 def get_test_data() -> pd.DataFrame:
