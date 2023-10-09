@@ -1,12 +1,12 @@
 import os
 import os.path
+from typing import List
 
 import pandas as pd
-from typing import List
 import pytest
 
 from src.models.train_model import load_data, normalize_data
-from tests.utilities import get_test_data, get_paths, get_hparams
+from tests.utilities import get_hparams, get_paths, get_test_data
 
 
 @pytest.mark.skipif(

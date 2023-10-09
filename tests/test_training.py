@@ -1,8 +1,8 @@
-from src.models.model import LightningModel
 import torch
-from src.models.train_model import train
 
-from tests.utilities import get_normalized_test_data, get_hparams
+from src.models.model import LightningModel
+from src.models.train_model import train
+from tests.utilities import get_hparams, get_normalized_test_data
 
 
 def test_model_created() -> None:

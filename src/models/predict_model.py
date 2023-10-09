@@ -1,13 +1,13 @@
-from fastapi import FastAPI, HTTPException
+import os
 from http import HTTPStatus
-from google.cloud import storage
+from typing import Dict, List, Union
 
 import torch
-import os
-from src.models.model import LightningModel
-from typing import List, Union, Dict
 import yaml
+from fastapi import FastAPI, HTTPException
+from google.cloud import storage
 
+from src.models.model import LightningModel
 
 app = FastAPI()
 

@@ -1,9 +1,10 @@
+from typing import Any, Dict, Tuple
+
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 from torch import optim
 from torch.utils.data import DataLoader, Dataset
-from typing import Dict, Any, Tuple
 
 
 class LightningModel(pl.LightningModule):

@@ -5,8 +5,7 @@ import pytest
 import torch
 
 from src.models.model import LightningModel
-
-from tests.utilities import get_normalized_test_data, get_paths, get_hparams
+from tests.utilities import get_hparams, get_normalized_test_data, get_paths
 
 
 @pytest.mark.skipif(
