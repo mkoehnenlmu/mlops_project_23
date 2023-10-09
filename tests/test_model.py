@@ -30,7 +30,7 @@ def test_model_output() -> None:
         (torch.randn(1, get_hparams()["input_size"]), does_not_raise()),
         (
             torch.randn(1, 2, 3),
-            pytest.raises(ValueError, match="Expected input to a 2D tensor"),
+            pytest.raises(ValueError, match="Expected input to be a 2D tensor"),
         ),
         (
             torch.randn(20, 30),
