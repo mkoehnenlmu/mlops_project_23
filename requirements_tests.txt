@@ -13,3 +13,5 @@ pytest
 pandas
 google-cloud-storage
 httpx
+fastapi
+google-cloud-storage
