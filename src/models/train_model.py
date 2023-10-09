@@ -14,6 +14,15 @@ from typing import Tuple, Dict, Any
 
 # loads the data from the processed data folder
 def load_data(training_data_path: str) -> pd.DataFrame:
+    """
+    Loads training data from a CSV file.
+
+    Args:
+        training_data_path (str): Path to the training data CSV file.
+
+    Returns:
+        pd.DataFrame: Loaded training data as a DataFrame.
+    """
     # if training data path is available
     if not os.path.exists(training_data_path):
         # pull the training data from google cloud storage
@@ -38,6 +47,15 @@ def load_data(training_data_path: str) -> pd.DataFrame:
 
 
 def normalize_data(data: pd.DataFrame, dep_var: str = "DEP_DEL15") -> Tuple[torch.Tensor, torch.Tensor]:
+    """
+    Normalize input data and split it into features (x) and targets (y).
+
+    Args:
+        data (pd.DataFrame): Input data in a DataFrame format.
+
+    Returns:
+        Tuple[torch.Tensor, torch.Tensor]: Tuple containing normalized features (x) and targets (y) as torch Tensors.
+    """
     # convert data to tensors, where all columns in the dataframe
     # except TAc are inputs and TAc is the target
     x = tensor(data.drop(columns=[dep_var]).values).float()
@@ -54,6 +72,17 @@ def normalize_data(data: pd.DataFrame, dep_var: str = "DEP_DEL15") -> Tuple[torc
 
 # trains the lightning model with the data
 def train(x: torch.Tensor, y: torch.Tensor, hparams: Dict[str, Any]):
+    """
+    Train a LightningModel using the given data and hyperparameters.
+
+    Args:
+        x (torch.Tensor): Input features as a torch Tensor.
+        y (torch.Tensor): Target values as a torch Tensor.
+        hparams (Dict[str, Any]): Hyperparameters for training.
+
+    Returns:
+        LightningModel: Trained LightningModel.
+    """
     # if the loss function is SoftMarginLoss,
     # transform the target from {0,1} to {-1,1}
     if hparams["criterion"] == "SoftMarginLoss":
@@ -124,6 +153,18 @@ def evaluate_model(model: LightningModel, data: pd.DataFrame):
 def save_model(
     model: LightningModel, model_path: str, tag: str = "latest", push: bool = True
 ) -> None:
+    """
+    Save a trained model to a file and optionally push it to Google Cloud Storage.
+
+    Args:
+        model (LightningModel): Trained LightningModel to be saved.
+        model_path (str): Path to save the model.
+        tag (str, optional): Tag to be added to the model file name. Defaults to "latest".
+        push (bool, optional): Whether to push the model to Google Cloud Storage. Defaults to True.
+
+    Returns:
+        None
+    """
     # save the trained model to the shared directory on disk
     save(model.state_dict(), model_path)
 
@@ -143,6 +184,15 @@ def save_model(
 
 @hydra.main(config_path="../configs/", config_name="config.yaml", version_base="1.2")
 def main(cfg):
+    """
+    Main function to train a model using Hydra configuration.
+
+    Args:
+        cfg: Hydra configuration object.
+
+    Returns:
+        None
+    """
     # get data
     data = load_data(cfg.paths.training_data_path)
     x, y = normalize_data(data, "DEP_DEL15")
