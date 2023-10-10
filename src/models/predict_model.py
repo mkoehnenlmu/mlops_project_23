@@ -1,8 +1,22 @@
+import csv
+import os
 from http import HTTPStatus
 from typing import Any, Dict, List, Union
 
 import torch
-from fastapi import BackgroundTasks, FastAPI, HTTPException
+from datetime import datetime
+import pandas as pd
+
+from src.data.load_data import load_data, get_paths
+from fastapi import BackgroundTasks, BackgroundTasks, FastAPI, HTTPException
+from fastapi.responses import HTMLResponse
+
+from evidently.metric_preset import (
+    DataDriftPreset,
+    DataQualityPreset,
+    TargetDriftPreset,
+)
+from evidently.report import Report
 
 from src.data.load_data import (
     get_hparams,
@@ -54,11 +68,41 @@ async def model_predict(model: LightningModel, input_data: str) -> torch.Tensor:
     return prediction.item()
 
 
+async def process_prediction(input_data: List[str],
+                             model: LightningModel,
+                             background_tasks: BackgroundTasks,) -> float:
+
+    prediction = await model_predict(model, input_data)
+    now = str(datetime.now())
+    background_tasks.add_task(
+        add_to_database,
+        now,
+        input_data,
+        prediction.item(),
+    )
+    return prediction
+
+
 def check_valid_input(input_data: str) -> bool:
     if len(input_data.split(",")) != get_hparams()["input_size"]:
         return False
     else:
         return True
+
+
+def add_to_database(
+    now: str,
+    input_data: List[str],
+    prediction: float,
+) -> None:
+    """function that adds the 90 element input and the prediction together with the timestamp now to a csv-file"""
+    if not os.path.exists("database.csv"):
+        with open("database.csv", "a") as f:
+            writer = csv.writer(f)
+            writer.writerow(["time", "input_data", "prediction"])
+    with open("database.csv", "a") as f:
+        writer = csv.writer(f)
+        writer.writerow([now, input_data, prediction])
 
 
 @app.post("/predict")
@@ -75,7 +119,8 @@ async def predict(
         }
     else:
         model = load_model()
-        prediction = await model_predict(model, input_data)
+        prediction = await process_prediction(input_data, model, background_tasks)
+
         # Return the inferred values "delay"
         response = {
             "input": input_data,
@@ -89,7 +134,9 @@ async def predict(
 
 @app.post("/batch_predict")
 async def batch_predict(
+
     input_data: List[str],
+    background_tasks: BackgroundTasks,
 ) -> Dict[str, Any]:
     model = load_model()
     if not all(check_valid_input(data) for data in input_data):
@@ -103,7 +150,7 @@ async def batch_predict(
         # Make the inference
         predictions: List[Dict[str, torch.Tensor]] = []
         for data in input_data:
-            prediction = await model_predict(model, data)
+            prediction = await process_prediction(data, model, background_tasks)
             # Return the inferred values "delay"
             predictions.append({"delay": prediction})
         response = {
@@ -114,3 +161,55 @@ async def batch_predict(
         }
 
     return response
+
+
+def load_reference_data() -> pd.DataFrame, pd.DataFrame:
+    reference_data = load_data(get_paths()["training_data_path"])
+    # sample 1000 rows from reference data
+    reference_data = reference_data.sample(1000)
+    reference_prediction = reference_data.pop('TAc')
+    reference_data.insert(reference_data.shape[1], "TAc", reference_prediction)
+
+    current_data = pd.read_csv('database.csv')
+    current_data.drop(columns=['time'], inplace=True)
+    # remove "." and "" from entries in colum input_data of current_data and split to 90 feature columns
+    current_data = pd.concat([current_data['input_data'].str.strip(".).str.strip(").str.split(',', expand=True),
+                              current_data['prediction']], axis=1)
+    current_data.columns = reference_data.columns
+    # convert type of columns of current_data to the same type as reference_data if not nan
+
+    for col in current_data.columns:
+        try:
+            # pd.to_numeric(current_data[col], errors='raise', downcast=reference_data[col].dtype)
+            # we currently cannot deal with nans here!
+            current_data[col] = current_data[col].astype(reference_data[col].dtype)
+        except ValueError:
+            print(col)
+
+    return reference_data, current_data
+
+
+@app.get("/monitoring/", response_class=HTMLResponse)
+async def monitoring() -> HTMLResponse:
+    """Simple get request method that returns a monitoring report."""
+    reference_data, current_data = load_reference_data()
+
+    data_drift_report = Report(
+        metrics=[
+            DataDriftPreset(),
+            DataQualityPreset(),
+            TargetDriftPreset(),
+        ]
+    )
+
+    data_drift_report.run(
+        current_data=reference_data,
+        reference_data=current_data,
+        column_mapping=None,
+    )
+    data_drift_report.save_html("monitoring.html")
+
+    with open("monitoring.html", "r", encoding="utf-8") as f:
+        html_content = f.read()
+
+    return HTMLResponse(content=html_content, status_code=200)
