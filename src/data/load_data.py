@@ -41,7 +41,9 @@ def load_data(training_data_path: str) -> pd.DataFrame:
     return pd.read_csv(training_data_path)
 
 
-def normalize_data(data: pd.DataFrame, dep_var: str = "DEP_DEL15") -> Tuple[torch.Tensor, torch.Tensor]:
+def normalize_data(
+    data: pd.DataFrame, dep_var: str = "DEP_DEL15"
+) -> Tuple[torch.Tensor, torch.Tensor]:
     """
     Normalize input data and split it into features (x) and targets (y).
 
@@ -59,7 +61,6 @@ def normalize_data(data: pd.DataFrame, dep_var: str = "DEP_DEL15") -> Tuple[torc
     # for every column in the input values, apply a min max normalization
     # that doesn't set any values to NaN
     for i in range(x.shape[1]):
-        x[:, i] = (x[:, i] - x[:, i].min()) / \
-            (x[:, i].max() - x[:, i].min() + 1e-6)
+        x[:, i] = (x[:, i] - x[:, i].min()) / (x[:, i].max() - x[:, i].min() + 1e-6)
 
     return x, y

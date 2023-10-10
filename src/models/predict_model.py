@@ -1,6 +1,6 @@
 import os
 from http import HTTPStatus
-from typing import Dict, List, Union, Any
+from typing import Any, Dict, List, Union
 
 import torch
 import yaml

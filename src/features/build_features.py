@@ -61,14 +61,11 @@ def build_features_new(data: pd.DataFrame) -> pd.DataFrame:
         DataFrame: DataFrame with added features.
     """
     # Convert distance features
-    data["DISTANCE"] = [int(x[0]) for x in
-                        (data["DEP_TIME_BLK"].str.split("-"))]
+    data["DISTANCE"] = [int(x[0]) for x in (data["DEP_TIME_BLK"].str.split("-"))]
 
     # convert columns to one hot encoding
     data = pd.concat([data, data["CARRIER_NAME"].str.get_dummies()], axis=1)
-    data = pd.concat([data, data["DEPARTING_AIRPORT"].str.get_dummies()],
-                     axis=1)
-    data = pd.concat([data, data["PREVIOUS_AIRPORT"].str.get_dummies()],
-                     axis=1)
+    data = pd.concat([data, data["DEPARTING_AIRPORT"].str.get_dummies()], axis=1)
+    data = pd.concat([data, data["PREVIOUS_AIRPORT"].str.get_dummies()], axis=1)
 
     return data

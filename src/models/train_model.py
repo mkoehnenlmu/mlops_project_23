@@ -6,8 +6,8 @@ import pytorch_lightning as pl
 import torch
 from torch import backends, save
 
-from src.models.model import LightningModel
 from src.data.load_data import load_data, normalize_data
+from src.models.model import LightningModel
 
 
 # trains the lightning model with the data
@@ -54,7 +54,9 @@ def train(x: torch.Tensor, y: torch.Tensor, hparams: Dict[str, Any]) -> Lightnin
     return model
 
 
-def evaluate_model(model: LightningModel, data: pd.DataFrame) -> Tuple[float, float, float, float, float]:
+def evaluate_model(
+    model: LightningModel, data: pd.DataFrame
+) -> Tuple[float, float, float, float, float]:
     x, y = normalize_data(data)
     predictions = model.forward(x)
     # rmse = ((preds - y) ** 2).mean().sqrt()
@@ -86,7 +88,13 @@ def evaluate_model(model: LightningModel, data: pd.DataFrame) -> Tuple[float, fl
     f1 = 2 * precision * recall / (precision + recall)
     zero_one_loss = 1 - accuracy
 
-    return accuracy.item(), precision.item(), recall.item(), f1.item(), zero_one_loss.item()
+    return (
+        accuracy.item(),
+        precision.item(),
+        recall.item(),
+        f1.item(),
+        zero_one_loss.item(),
+    )
 
 
 # save the model in the models folder

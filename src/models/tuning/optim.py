@@ -5,13 +5,14 @@ from typing import Any, Dict, Union
 import hydra
 import numpy as np
 from ConfigSpace import Configuration
-from smac.facade.hyperparameter_optimization_facade import \
-    HyperparameterOptimizationFacade as HPOFacade
+from smac.facade.hyperparameter_optimization_facade import (
+    HyperparameterOptimizationFacade as HPOFacade,
+)
 from smac.multi_objective.parego import ParEGO
 from smac.scenario import Scenario
 
-from src.models.train_model import evaluate_model, save_model, train
 from src.data.load_data import load_data
+from src.models.train_model import evaluate_model, save_model, train
 from src.models.tuning.configspace import configspace_new
 from src.models.tuning.plot_pareto import plot_pareto
 
@@ -21,7 +22,9 @@ logging.basicConfig(level=logging.INFO, format=log_fmt)
 logger = logging.getLogger(__name__)
 
 
-def evaluate_config(config: Configuration, seed: int = 42) -> Dict[str, Union[str, float]]:
+def evaluate_config(
+    config: Configuration, seed: int = 42
+) -> Dict[str, Union[str, float]]:
     """
     Evaluate a hyperparameter configuration.
 
@@ -150,8 +153,7 @@ def train_optimal_model(cfg, hparams, save=True) -> None:
         save_model(model, push=True)
 
 
-@hydra.main(config_path="../../configs/", config_name="config.yaml",
-            version_base="1.2")
+@hydra.main(config_path="../../configs/", config_name="config.yaml", version_base="1.2")
 def run_optim(cfg) -> None:
     """
     Main function to run hyperparameter optimization.

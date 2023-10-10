@@ -15,8 +15,7 @@ class LightningModel(pl.LightningModule):
 
         # define the neural network
         layers = []
-        layers.append(nn.Linear(hparams["input_size"],
-                                int(hparams["hidden_size"])))
+        layers.append(nn.Linear(hparams["input_size"], int(hparams["hidden_size"])))
         # add activation
         layers.append(nn.ReLU())
         # layers.append(
