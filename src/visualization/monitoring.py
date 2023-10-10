@@ -23,7 +23,7 @@ from fastapi.responses import HTMLResponse
 from google.cloud import storage
 
 # from enum import Enum
-from src.data.load_data import get_paths, load_data
+from src.data.load_data import get_paths, load_data, get_additional_configs
 from src.models.predict_model import load_model
 
 LOCAL = False  # set this to true when developing locally
@@ -48,8 +48,8 @@ def load_reference_data(from_remote: bool = not LOCAL):
     )
     # sample 1000 rows from reference data
     reference_data = reference_data.sample(1000)
-    reference_prediction = reference_data.pop("TAc")
-    reference_data.insert(reference_data.shape[1], "TAc", reference_prediction)
+    reference_prediction = reference_data.pop(get_additional_configs()["dependent_var"])
+    reference_data.insert(reference_data.shape[1], get_additional_configs()["dependent_var"], reference_prediction)
 
     if from_remote:
         storage_client = storage.Client()
@@ -90,7 +90,7 @@ def load_test_data():
     data = load_data(get_paths()["training_data_path"], get_paths()["training_bucket"])
     # sample 1000 rows from reference data
     data = data.sample(1000)
-    data_prediction = data.pop("TAc")
+    data_prediction = data.pop(get_additional_configs()["dependent_var"])
     data.insert(data.shape[1], "target", data_prediction)
     model = load_model()
     input_data = data.drop(columns=["target"]).values
