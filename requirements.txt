@@ -11,3 +11,8 @@ dvc
 hydra-core
 pandas
 pre-commit
+swig >= 4.1.1
+smac >= 2.0.0
+numpy
+matplotlib
+ConfigSpace
