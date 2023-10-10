@@ -27,6 +27,9 @@ from src.data.load_data import (
 )
 from src.models.model import LightningModel
 
+LOCAL = False  # set this to true when developing locally
+
+
 app = FastAPI()
 
 
@@ -94,8 +97,8 @@ def add_to_database(
     now: str,
     input_data: List[str],
     prediction: float,
-    local: bool = False,
-) -> None:
+    local: bool = LOCAL,
+):
     """function that adds the 90 element input and the prediction together with the timestamp now to a csv-file"""
     if local:
         if not os.path.exists("database.csv"):
@@ -107,13 +110,13 @@ def add_to_database(
         storage_client = storage.Client()
         bucket = storage_client.get_bucket("delay_mlops_inference")
         # open the file "database.csv" from the bucket add a new to to the csv, the upload again
-        blob = bucket.blob("database.csv")
-        blob.download_to_filename("database.csv")
+        blob = bucket.blob("inference/database.csv")
+        blob.download_to_filename("data/inference/database.csv")
     with open("database.csv", "a") as f:
         writer = csv.writer(f)
         writer.writerow([now, input_data, prediction])
     if not local:
-        blob.upload_from_filename("database.csv")
+        blob.upload_from_filename("data/inference/database.csv")
 
 
 @app.post("/predict")
