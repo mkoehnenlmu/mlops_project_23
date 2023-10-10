@@ -6,7 +6,7 @@ import pytorch_lightning as pl
 import torch
 from torch import backends, save
 
-from src.data.load_data import load_data, normalize_data
+from src.data.load_data import load_data, create_normalized_target
 from src.models.model import LightningModel
 
 
@@ -57,7 +57,7 @@ def train(x: torch.Tensor, y: torch.Tensor, hparams: Dict[str, Any]) -> Lightnin
 def evaluate_model(
     model: LightningModel, data: pd.DataFrame
 ) -> Tuple[float, float, float, float, float]:
-    x, y = normalize_data(data)
+    x, y = create_normalized_target(data)
     predictions = model.forward(x)
     # rmse = ((preds - y) ** 2).mean().sqrt()
     y = y.unsqueeze(1)
@@ -143,7 +143,7 @@ def main(cfg: Dict[str, Any]) -> None:
     """
     # get data
     data = load_data(cfg.paths.training_data_path)
-    x, y = normalize_data(data, "DEP_DEL15")
+    x, y = create_normalized_target(data, "DEP_DEL15")
     train_data = data.sample(frac=0.8, random_state=42)
     test_data = data.drop(train_data.index)
 

@@ -3,7 +3,7 @@ from typing import List
 import pandas as pd
 import pytest
 
-from src.data.load_data import load_data, normalize_data
+from src.data.load_data import load_data, create_normalized_target
 from tests.utilities import get_test_data, get_test_hparams, get_test_paths
 
 
@@ -22,7 +22,7 @@ def test_data_shape() -> None:
 
 def test_x_y_split() -> None:
     data = get_test_data()
-    x, y = normalize_data(data)
+    x, y = create_normalized_target(data)
     assert (
         x.shape[1] == get_test_hparams()["input_size"]
     ), "Features do not have the correct shape"
@@ -33,7 +33,7 @@ def test_x_y_split() -> None:
 
 def test_normalization() -> None:
     data = get_test_data()
-    x, _ = normalize_data(data)
+    x, _ = create_normalized_target(data)
 
     x_vals: List[list] = []
     for x_i in x:

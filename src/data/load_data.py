@@ -132,7 +132,7 @@ def download_file_from_gcs(
     blob.download_to_filename(gcs_data_path)
 
 
-def normalize_data(
+def create_normalized_target(
     data: pd.DataFrame, dep_var: str = "DEP_DEL15"
 ) -> Tuple[torch.Tensor, torch.Tensor]:
     """
@@ -144,14 +144,42 @@ def normalize_data(
     Returns:
         Tuple[torch.Tensor, torch.Tensor]: Tuple containing normalized features (x) and targets (y) as torch Tensors.
     """
+    x, y = separate_target(data, dep_var)
+    return normalize_data(x), y
+
+
+def separate_target(data: pd.DataFrame, dep_var: str = "DEP_DEL15") -> Tuple[torch.Tensor, torch.Tensor]:
+    """
+    Normalize input data and split it into features (x) and targets (y).
+
+    Args:
+        data (pd.DataFrame): Input data in a DataFrame format.
+
+    Returns:
+        Tuple[torch.Tensor, torch.Tensor]: Tuple containing normalized features (x) and targets (y) as torch Tensors.
+    """
     # convert data to tensors, where all columns in the dataframe
-    # except TAc are inputs and TAc is the target
+    # except dependent var are input features
     x = tensor(data.drop(columns=[dep_var]).values).float()
     y = tensor(data[dep_var].values).float()
+
+    return x, y
+
+
+def normalize_data(x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+    """
+    Normalize input data.
+
+    Args:
+        data (torch.Tensor): Input data in a torch tensor format.
+
+    Returns:
+        Tuple[torch.Tensor, torch.Tensor]: Tuple containing normalized features (x) and targets (y) as torch Tensors.
+    """
 
     # for every column in the input values, apply a min max normalization
     # that doesn't set any values to NaN
     for i in range(x.shape[1]):
         x[:, i] = (x[:, i] - x[:, i].min()) / (x[:, i].max() - x[:, i].min() + 1e-6)
 
-    return x, y
+    return x
