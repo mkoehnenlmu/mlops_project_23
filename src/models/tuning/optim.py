@@ -82,7 +82,7 @@ def optimize_configuration(cfg) -> Dict[str, Any]:
         objectives=["loss", "size"],  # multi objective optim
         n_trials=cfg.tuning.num_configs,
         walltime_limit=3600,  # max total time
-        n_workers=4,
+        n_workers=cfg.tuning.num_configs,  # max parallel workers
         output_directory=Path("./models/optimizations/"),
     )
 
@@ -137,7 +137,7 @@ def save_config(hparams: Dict[str, Any], model_config_path: str) -> None:
     with open(model_config_path, "w") as json_file:
         json.dump(hparams, json_file, indent=4)
     blob = bucket.blob(
-        model_config_path.split("/")[2] + model_config_path.split("/")[3]
+        model_config_path.split("/")[2] + "/" + model_config_path.split("/")[3]
     )
     blob.upload_from_filename(model_config_path)
 
