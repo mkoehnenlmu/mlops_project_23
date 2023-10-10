@@ -21,7 +21,7 @@ def get_hparams():
                "input_size": cfg["hyperparameters"]["input_size"],
                "output_size": cfg["hyperparameters"]["output_size"],
                "hidden_size": cfg["hyperparameters"]["hidden_size"],
-               "num_layers":  cfg["hyperparameters"]["num_layers"],
+               "hidden_layers":  cfg["hyperparameters"]["hidden_layers"],
                "criterion":  cfg["hyperparameters"]["criterion"],
                "optimizer":  cfg["hyperparameters"]["optimizer"],
                }

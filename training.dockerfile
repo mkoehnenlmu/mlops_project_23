@@ -3,7 +3,7 @@ FROM --platform=linux/amd64 python:3.11-slim
 # install updates
 RUN apt-get update && \
     apt-get install --no-install-recommends -y build-essential && \
-    apt-get install swig3.0 && \
+    apt-get -y install swig && \
     ln -s /usr/bin/swig3.0 /usr/bin/swig && \
     apt clean && rm -rf /var/lib/apt/lists/*
 
