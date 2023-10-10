@@ -8,7 +8,7 @@ from datetime import datetime
 import pandas as pd
 
 from src.data.load_data import load_data, get_paths
-from fastapi import BackgroundTasks, BackgroundTasks, FastAPI, HTTPException
+from fastapi import BackgroundTasks, FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 
 from evidently.metric_preset import (
@@ -94,15 +94,26 @@ def add_to_database(
     now: str,
     input_data: List[str],
     prediction: float,
+    local: bool = False,
 ) -> None:
     """function that adds the 90 element input and the prediction together with the timestamp now to a csv-file"""
-    if not os.path.exists("database.csv"):
-        with open("database.csv", "a") as f:
-            writer = csv.writer(f)
-            writer.writerow(["time", "input_data", "prediction"])
+    if local:
+        if not os.path.exists("database.csv"):
+            with open("database.csv", "a") as f:
+                writer = csv.writer(f)
+                writer.writerow(["time", "input_data", "prediction"])
+    else:
+        # on Cloud Compute Engine, the service account credentials will be automatically available
+        storage_client = storage.Client()
+        bucket = storage_client.get_bucket("delay_mlops_inference")
+        # open the file "database.csv" from the bucket add a new to to the csv, the upload again
+        blob = bucket.blob("database.csv")
+        blob.download_to_filename("database.csv")
     with open("database.csv", "a") as f:
         writer = csv.writer(f)
         writer.writerow([now, input_data, prediction])
+    if not local:
+        blob.upload_from_filename("database.csv")
 
 
 @app.post("/predict")
@@ -163,13 +174,19 @@ async def batch_predict(
     return response
 
 
-def load_reference_data() -> pd.DataFrame, pd.DataFrame:
+def load_reference_data():
     reference_data = load_data(get_paths()["training_data_path"])
     # sample 1000 rows from reference data
     reference_data = reference_data.sample(1000)
     reference_prediction = reference_data.pop('TAc')
     reference_data.insert(reference_data.shape[1], "TAc", reference_prediction)
 
+    if from_remote:
+        storage_client = storage.Client()
+        bucket = storage_client.get_bucket("delay_mlops_inference")
+        # open the file "database.csv" from the bucket add a new to to the csv, the upload again
+        blob = bucket.blob("database.csv")
+        blob.download_to_filename("database.csv")
     current_data = pd.read_csv('database.csv')
     current_data.drop(columns=['time'], inplace=True)
     # remove "." and "" from entries in colum input_data of current_data and split to 90 feature columns
