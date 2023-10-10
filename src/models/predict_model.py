@@ -93,8 +93,8 @@ def add_to_database(
 ):
     """function that adds the 90 element input and the prediction together with the timestamp now to a csv-file"""
     if local:
-        if not os.path.exists("database.csv"):
-            with open("database.csv", "a") as f:
+        if not os.path.exists(get_paths()["inference_data_path"]):
+            with open(get_paths()["inference_data_path"], "a") as f:
                 writer = csv.writer(f)
                 writer.writerow(["time", "input_data", "prediction"])
     else:
@@ -103,11 +103,11 @@ def add_to_database(
         bucket = storage_client.get_bucket(get_paths()["inference_bucket"])
         # open the file "database.csv" from the bucket add a new to to the csv, the upload again
         blob = bucket.blob(
-            get_paths()["inference_data_path"].split["/"][1]
+            get_paths()["inference_data_path"].split["/"][1] + "/"
             + get_paths()["inference_data_path"].split["/"][2]
         )
         blob.download_to_filename(get_paths()["inference_data_path"])
-    with open("database.csv", "a") as f:
+    with open(get_paths()["inference_data_path"], "a") as f:
         writer = csv.writer(f)
         writer.writerow([now, input_data, prediction])
     if not local:
