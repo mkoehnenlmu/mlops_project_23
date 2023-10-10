@@ -8,8 +8,16 @@ from smac.facade.abstract_facade import AbstractFacade
 
 
 def plot_pareto(smac: AbstractFacade, incumbents: list[Configuration]) -> None:
-    """Plots configurations from SMAC and highlights the best configurations in
-    a Pareto front."""
+    """
+    Plots configurations from SMAC and highlights the best configurations in a Pareto front.
+
+    Args:
+        smac (AbstractFacade): SMAC instance.
+        incumbents (list[Configuration]): List of incumbent configurations.
+
+    Returns:
+        None
+    """
     average_costs = []
     average_pareto_costs = []
     for config in smac.runhistory.get_configs():

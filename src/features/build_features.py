@@ -4,6 +4,15 @@ import pandas as pd
 # Function that takes in a dataframe and returns a dataframe
 # with the following features:
 def build_features(ic_trains: pd.DataFrame):
+    """
+    Preprocess features of old dataset (train delays).
+
+    Args:
+        ic_trains (DataFrame): original DataFrame from kaggle
+
+    Returns:
+        DataFrame: DataFrame with preprocessed features.
+    """
     # Add some time features
     # Month
     ic_trains.loc[:, "MONTH"] = pd.to_datetime(
@@ -41,7 +50,16 @@ def build_features(ic_trains: pd.DataFrame):
     return ic_trains
 
 
-def build_features_new(data: pd.DataFrame):
+def build_features_new(data: pd.DataFrame) -> pd.DataFrame:
+    """
+    Preprocess features of new dataset (flight delays).
+
+    Args:
+        data (DataFrame): Input DataFrame.
+
+    Returns:
+        DataFrame: DataFrame with added features.
+    """
     # Convert distance features
     data["DISTANCE"] = [int(x[0]) for x in
                         (data["DEP_TIME_BLK"].str.split("-"))]

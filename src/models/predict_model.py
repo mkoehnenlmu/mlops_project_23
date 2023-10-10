@@ -1,6 +1,6 @@
 import os
 from http import HTTPStatus
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Any
 
 import torch
 import yaml
@@ -30,7 +30,7 @@ def download_model_from_gcs() -> None:
     blob.download_to_filename("models/model.pth")
 
 
-def get_cfg() -> dict:
+def get_cfg() -> Dict[str, Dict[str, Any]]:
     with open("./src/configs/config.yaml", "r") as yaml_file:
         cfg = yaml.safe_load(yaml_file)
 
@@ -71,7 +71,7 @@ def load_model(model_path: str = get_paths()["model_path"]) -> LightningModel:
     return model
 
 
-async def model_predict(model: LightningModel, input_data: str) -> float:
+async def model_predict(model: LightningModel, input_data: str) -> torch.Tensor:
     # Make the inference
     input_data = input_data.strip('"').strip("'").strip("[").strip("]")
     input_data = input_data.split(",")
@@ -97,7 +97,7 @@ def check_valid_input(input_data: str) -> bool:
 @app.post("/predict")
 async def predict(
     input_data: str,
-) -> Dict[str, Union[str, HTTPStatus, List[Dict[str, float]]]]:
+) -> Dict[str, Union[str, HTTPStatus, List[Dict[str, torch.Tensor]]]]:
     if not check_valid_input(input_data):
         response = {
             "input": input_data,
@@ -122,7 +122,7 @@ async def predict(
 @app.post("/batch_predict")
 async def batch_predict(
     input_data: List[str],
-) -> Dict[str, Union[str, HTTPStatus, List[Dict[str, float]]]]:
+) -> Dict[str, Union[str, HTTPStatus, List[Dict[str, torch.Tensor]]]]:
     model = load_model()
     if not all(check_valid_input(data) for data in input_data):
         response = {
@@ -133,7 +133,7 @@ async def batch_predict(
         }
     else:
         # Make the inference
-        predictions: List[Dict[str, float]] = []
+        predictions: List[Dict[str, torch.Tensor]] = []
         for data in input_data:
             prediction = await model_predict(model, data)
             # Return the inferred values "delay"

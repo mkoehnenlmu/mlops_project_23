@@ -1,5 +1,6 @@
 import logging
 from pathlib import Path
+from typing import Any, Dict, Union
 
 import hydra
 import numpy as np
@@ -14,16 +15,23 @@ from src.data.load_data import load_data
 from src.models.tuning.configspace import configspace_new
 from src.models.tuning.plot_pareto import plot_pareto
 
-# from torch.cuda import is_available as cuda_available
-
-
 # Global logger
 log_fmt = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 logging.basicConfig(level=logging.INFO, format=log_fmt)
 logger = logging.getLogger(__name__)
 
 
-def evaluate_config(config: Configuration, seed: int = 42) -> float:
+def evaluate_config(config: Configuration, seed: int = 42) -> Dict[str, Union[str, float]]:
+    """
+    Evaluate a hyperparameter configuration.
+
+    Args:
+        config (Configuration): Configuration to evaluate.
+        seed (int, optional): Random seed. Defaults to 42.
+
+    Returns:
+        Dict[str, Union[str, float]]: Dictionary containing loss and size.
+    """
     params = dict(config)  # .get_dictionary()
 
     print("Evaluate config: " + str(params))
@@ -33,8 +41,7 @@ def evaluate_config(config: Configuration, seed: int = 42) -> float:
 
     model = train(train_data, params)
 
-    accuracy, precision, recall, f1, zero_one_loss = evaluate_model(model,
-                                                                    test_data)
+    accuracy, precision, recall, f1, zero_one_loss = evaluate_model(model, test_data)
 
     print("Loss (F1): " + str(f1.item()))
 
@@ -45,7 +52,16 @@ def evaluate_config(config: Configuration, seed: int = 42) -> float:
     }
 
 
-def optimize_configuration(cfg):
+def optimize_configuration(cfg) -> Dict[str, Any]:
+    """
+    Optimize hyperparameter configuration.
+
+    Args:
+        cfg: Hydra configuration object.
+
+    Returns:
+        Dict[str, Any]: Dictionary containing the optimized configuration.
+    """
     # load the data into a global variable
     global data
     data = load_data(cfg.paths.training_data_path)
@@ -91,7 +107,16 @@ def optimize_configuration(cfg):
     return lowest_cost
 
 
-def save_config(hparams: dict):
+def save_config(hparams: Dict[str, Any]) -> None:
+    """
+    Save hyperparameters to Google Cloud Storage.
+
+    Args:
+        hparams (Dict[str, Any]): Hyperparameters to save.
+
+    Returns:
+        None
+    """
     from google.cloud import storage
 
     # on Cloud Compute Engine, the service account credentials
@@ -104,10 +129,21 @@ def save_config(hparams: dict):
     blob.upload_from_string(str(hparams))
 
 
-def train_optimal_model(cfg, hparams, save=True):
+def train_optimal_model(cfg, hparams, save=True) -> None:
+    """
+    Train the optimal model.
+
+    Args:
+        cfg: Hydra configuration object.
+        hparams: Hyperparameters.
+        save (bool, optional): Whether to save the model. Defaults to True.
+
+    Returns:
+        None
+    """
     # data = load_data(cfg.paths.training_data_path)
 
-    model = train(data, dict(hparams[0]))
+    model = train(data, dict(hparams))
 
     if save:
         save_config(model.hyperparams)
@@ -116,9 +152,18 @@ def train_optimal_model(cfg, hparams, save=True):
 
 @hydra.main(config_path="../../configs/", config_name="config.yaml",
             version_base="1.2")
-def run_optim(cfg):
+def run_optim(cfg) -> None:
+    """
+    Main function to run hyperparameter optimization.
+
+    Args:
+        cfg: Hydra configuration object.
+
+    Returns:
+        None
+    """
     optimal_params = optimize_configuration(cfg)
-    train_optimal_model(cfg, optimal_params, True)
+    train_optimal_model(cfg, optimal_params[0], True)
 
 
 if __name__ == "__main__":

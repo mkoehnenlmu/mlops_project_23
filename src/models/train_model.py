@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, Tuple
 
 import hydra
 import pandas as pd
@@ -54,7 +54,7 @@ def train(x: torch.Tensor, y: torch.Tensor, hparams: Dict[str, Any]) -> Lightnin
     return model
 
 
-def evaluate_model(model: LightningModel, data: pd.DataFrame):
+def evaluate_model(model: LightningModel, data: pd.DataFrame) -> Tuple[float, float, float, float, float]:
     x, y = normalize_data(data)
     predictions = model.forward(x)
     # rmse = ((preds - y) ** 2).mean().sqrt()
@@ -86,7 +86,7 @@ def evaluate_model(model: LightningModel, data: pd.DataFrame):
     f1 = 2 * precision * recall / (precision + recall)
     zero_one_loss = 1 - accuracy
 
-    return accuracy, precision, recall, f1, zero_one_loss
+    return accuracy.item(), precision.item(), recall.item(), f1.item(), zero_one_loss.item()
 
 
 # save the model in the models folder
@@ -123,12 +123,12 @@ def save_model(
 
 
 @hydra.main(config_path="../configs/", config_name="config.yaml", version_base="1.2")
-def main(cfg):
+def main(cfg: Dict[str, Any]) -> None:
     """
     Main function to train a model using Hydra configuration.
 
     Args:
-        cfg: Hydra configuration object.
+        cfg (Dict[str, Any]): Hydra configuration object.
 
     Returns:
         None
@@ -162,15 +162,15 @@ def main(cfg):
 
     print(
         "Model training loss (Accuracy, Precision, Recall, F1, 0-1 Loss): "
-        + str(acc.item())
+        + str(acc)
         + ", "
-        + str(pred.item())
+        + str(pred)
         + ", "
-        + str(recall.item())
+        + str(recall)
         + ", "
-        + str(f1.item())
+        + str(f1)
         + ", "
-        + str(zol.item())
+        + str(zol)
     )
 
     # TODO save scores with hyperparams in database
