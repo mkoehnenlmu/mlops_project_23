@@ -1,45 +1,36 @@
-import os
 from typing import Any, Dict, List, Tuple
 
 import pandas as pd
 import torch
-import yaml
 
-from tests import _PROJECT_ROOT
-
-
-def get_cfg() -> Dict[str, Dict[str, Any]]:
-    with open(os.path.join(_PROJECT_ROOT, "src/configs/config.yaml"), "r") as yaml_file:
-        cfg = yaml.safe_load(yaml_file)
-
-    return cfg
+from src.data.load_data import get_hparams, get_paths, get_additional_configs
 
 
-def get_hparams() -> Dict[str, Any]:
-    cfg = get_cfg()
+def get_test_paths() -> Dict[str, Any]:
+    return get_paths()
 
-    hparams: Dict[str, Any] = {
-        "lr": cfg["hyperparameters"]["learning_rate"],
-        "epochs": 1,  # cfg["hyperparameters"]["epochs"],
-        "batch_size": cfg["hyperparameters"]["batch_size"],
-        "input_size": cfg["hyperparameters"]["input_size"],
-        "output_size": cfg["hyperparameters"]["output_size"],
-        "hidden_size": cfg["hyperparameters"]["hidden_size"],
-        "num_layers": cfg["hyperparameters"]["num_layers"],
-        "criterion": cfg["hyperparameters"]["criterion"],
-        "optimizer": cfg["hyperparameters"]["optimizer"],
-    }
+
+def get_test_hparams() -> Dict[str, Any]:
+    hparams = get_hparams()
+    hparams["epochs"] = 1
 
     return hparams
 
 
-def get_paths() -> Dict[str, str]:
-    cfg = get_cfg()
-
-    return cfg["paths"]
-
-
 def get_test_data() -> pd.DataFrame:
+    columns: List[str] = [f"f{i}" for i in range(get_hparams()["input_size"])]\
+        + [get_additional_configs()["dependent_var"]]
+    values: List[float] = torch.randn(get_hparams()["input_size"] + 1).tolist()
+    print(len(columns), len(values))
+    data: Dict[str, float] = {columns[i]: values[i] for i in range(len(columns))}
+    return pd.DataFrame(data, index=[0])
+
+
+def get_normalized_test_data() -> Tuple[torch.Tensor, torch.Tensor]:
+    return torch.randn(2, get_hparams()["input_size"]), torch.rand(2)
+
+
+def get_test_data_old() -> pd.DataFrame:
     columns: List[str] = [
         "TSI",
         "TIP",
@@ -228,7 +219,3 @@ def get_test_data() -> pd.DataFrame:
     ]
     data: Dict[str, float] = {columns[i]: values[i] for i in range(len(columns))}
     return pd.DataFrame(data, index=[0])
-
-
-def get_normalized_test_data() -> Tuple[torch.Tensor, torch.Tensor]:
-    return torch.randn(2, 90), torch.rand(2, 1)

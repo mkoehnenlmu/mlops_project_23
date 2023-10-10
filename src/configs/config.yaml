@@ -13,8 +13,11 @@ hyperparameters:
   device: "cpu"
 paths:
   training_data_path: 'data/processed/train_sample.csv'
+  training_bucket: 'delay_mlops_data'
   input_filepath: 'data/raw/'
   output_filepath: 'data/processed/'
+  inference_bucket: 'delay_mlops_inference'
   model_path: 'models/model.pth'
+  model_config_path: 'src/configs/model_configs/hyperparams.json'
 tuning:
   num_configs: 200

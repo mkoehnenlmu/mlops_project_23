@@ -99,7 +99,7 @@ def evaluate_model(
 
 # save the model in the models folder
 def save_model(
-    model: LightningModel, model_path: str, tag: str = "latest", push: bool = True
+    model: LightningModel, model_path: str, bucket_name: str, push: bool = True
 ) -> None:
     """
     Save a trained model to a file and optionally push it to Google Cloud Storage.
@@ -123,7 +123,7 @@ def save_model(
         # on Cloud Compute Engine, the service account credentials
         # will be automatically available
         storage_client = storage.Client()
-        bucket = storage_client.get_bucket("delay_mlops_data")
+        bucket = storage_client.get_bucket(bucket_name)
         # upload the trained model to the bucket with
         # the tag set
         blob = bucket.blob(model_path)
@@ -183,7 +183,7 @@ def main(cfg: Dict[str, Any]) -> None:
 
     # TODO save scores with hyperparams in database
 
-    save_model(model, push=False)
+    save_model(model, cfg.paths.model_path, cfg.paths.training_bucket, push=False)
     # set tag as current timestamp
     tag = pd.Timestamp.now().strftime("%Y%m%d%H%M")
     save_model(model=model, model_path=cfg.paths.model_path, push=True, tag=tag)

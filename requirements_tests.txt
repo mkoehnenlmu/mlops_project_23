@@ -11,3 +11,4 @@ dvc
 hydra-core
 pytest
 pandas
+google-cloud-storage

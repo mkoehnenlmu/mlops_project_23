@@ -31,6 +31,10 @@ def test_model_hyperparameters() -> None:
         assert isinstance(
             model.configure_optimizers(), torch.optim.Adam
         ), "Incorrect optimizer used."
+    if hparams["optimizer"] == "AdamW":
+        assert isinstance(
+            model.configure_optimizers(), torch.optim.AdamW
+        ), "Incorrect optimizer used."
     elif hparams["optimizer"] == "SGD":
         assert isinstance(
             model.configure_optimizers(), torch.optim.SGD
