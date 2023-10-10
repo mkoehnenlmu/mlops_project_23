@@ -15,5 +15,6 @@ paths:
   training_data_path: 'data/processed/train_sample.csv'
   input_filepath: 'data/raw/'
   output_filepath: 'data/processed/'
+  model_path: 'models/model.pth'
 tuning:
   num_configs: 200

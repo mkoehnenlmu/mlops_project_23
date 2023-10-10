@@ -1,14 +1,23 @@
-import matplotlib.pyplot as plt
-import numpy as np
 import os
 from datetime import datetime
+
+import matplotlib.pyplot as plt
+import numpy as np
 from ConfigSpace import Configuration
 from smac.facade.abstract_facade import AbstractFacade
 
 
 def plot_pareto(smac: AbstractFacade, incumbents: list[Configuration]) -> None:
-    """Plots configurations from SMAC and highlights the best configurations in
-    a Pareto front."""
+    """
+    Plots configurations from SMAC and highlights the best configurations in a Pareto front.
+
+    Args:
+        smac (AbstractFacade): SMAC instance.
+        incumbents (list[Configuration]): List of incumbent configurations.
+
+    Returns:
+        None
+    """
     average_costs = []
     average_pareto_costs = []
     for config in smac.runhistory.get_configs():
@@ -30,8 +39,7 @@ def plot_pareto(smac: AbstractFacade, incumbents: list[Configuration]) -> None:
     pareto_costs_x, pareto_costs_y = pareto_costs[:, 0], pareto_costs[:, 1]
 
     plt.scatter(costs_x, costs_y, marker="x", label="Configuration")
-    plt.scatter(pareto_costs_x, pareto_costs_y, marker="x",
-                c="r", label="Incumbent")
+    plt.scatter(pareto_costs_x, pareto_costs_y, marker="x", c="r", label="Incumbent")
     plt.step(
         [pareto_costs_x[0]]
         + pareto_costs_x.tolist()

@@ -94,6 +94,7 @@ target/
 
 # data
 data/
+!src/data/
 
 # lightning logs
 lightning_logs/
