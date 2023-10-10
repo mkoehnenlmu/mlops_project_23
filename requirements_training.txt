@@ -6,6 +6,8 @@ pandas
 dvc
 hydra-core
 google-cloud-storage
+Cmake
+wheel
 swig >= 4.1.1
 smac >= 2.0.0
 matplotlib
