@@ -82,7 +82,7 @@ def optimize_configuration(cfg) -> Dict[str, Any]:
         objectives=["loss", "size"],  # multi objective optim
         n_trials=cfg.tuning.num_configs,
         walltime_limit=3600,  # max total time
-        n_workers=cfg.tuning.num_configs,  # max parallel workers
+        n_workers=cfg.tuning.n_workers,  # max parallel workers
         output_directory=Path("./models/optimizations/"),
     )
 
