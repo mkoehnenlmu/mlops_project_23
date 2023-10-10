@@ -4,7 +4,6 @@ import os
 from pathlib import Path
 from typing import List
 
-import click
 import pandas as pd
 from dotenv import find_dotenv, load_dotenv
 
@@ -40,36 +39,6 @@ def make_old_dataset(input_filepath: str, output_filepath: str):
     )
 
     final_dataset.to_csv(output_filepath, index=False)
-
-
-def make_new_dataset(input_filepath: str, output_filepath: str):
-    """Runs data processing scripts to turn raw data from
-    (../input_filepath) into cleaned data ready to be analyzed
-    (saved in ../output_filepath).
-    """
-    logger = logging.getLogger(__name__)
-    logger.info("making final data set from raw data")
-
-    train = pd.read_csv(input_filepath + "train.csv")
-
-    train_s = train.sample(500000, random_state=42)
-    train_inverse = train.drop(train_s.index)
-    train_test = train_inverse.sample(100000)
-
-    logger.info("Computing train features")
-    feature_data_train = bf.build_features_new(train)
-    feature_data_train = bf.build_features_new(train_test)
-
-    final_dataset_train = feature_data_train.drop(
-        ["CARRIER_NAME", "DEPARTING_AIRPORT", "DEP_TIME_BLK", "PREVIOUS_AIRPORT"],
-        axis=1,
-    )
-    final_dataset_test = train_test.drop(
-        ["CARRIER_NAME", "DEPARTING_AIRPORT", "DEP_TIME_BLK", "PREVIOUS_AIRPORT"],
-        axis=1,
-    )
-
-    final_dataset.to_csv("./data/processed/data.csv", index=False)
 
 
 def make_new_dataset(input_filepath, output_filepath):
