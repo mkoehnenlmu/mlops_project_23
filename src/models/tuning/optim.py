@@ -163,7 +163,7 @@ def train_optimal_model(cfg, hparams, save=True) -> None:
 
     if save:
         save_config(model.hyperparams, cfg.paths.model_config_path)
-        save_model(model, push=True)
+        save_model(model, cfg.paths.model_path, cfg.paths.training_bucket, push=True)
 
 
 # @hydra.main(config_path="../../configs/", config_name="config.yaml", version_base="1.2")

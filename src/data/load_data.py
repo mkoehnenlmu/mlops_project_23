@@ -58,11 +58,11 @@ def load_data(
             bucket_name,
         )
 
-        # unzip the file
-        with zipfile.ZipFile(data_path, "r") as zip_ref:
-            zip_ref.extractall(
-                data_path.split("/")[0] + "/" + data_path.split("/")[1] + "/"
-            )
+    data_dir = data_path.split("/")[0] + "/" + data_path.split("/")[1] + "/"
+
+    # unzip all files in data_dir
+    with zipfile.ZipFile(data_path.split(".")[0] + ".zip", "r") as zip_ref:
+        zip_ref.extractall(data_dir)
 
     return pd.read_csv(data_path)
 
