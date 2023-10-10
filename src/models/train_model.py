@@ -5,11 +5,9 @@ import hydra
 import pandas as pd
 import pytorch_lightning as pl
 import torch
-from torch import save, tensor
+from torch import backends, save, tensor
 
 from src.models.model import LightningModel
-from torch import save, tensor, backends
-from typing import Tuple, Dict, Any
 
 
 # loads the data from the processed data folder
@@ -27,8 +25,9 @@ def load_data(training_data_path: str) -> pd.DataFrame:
     if not os.path.exists(training_data_path):
         # pull the training data from google cloud storage
 
-        from google.cloud import storage
         import zipfile
+
+        from google.cloud import storage
 
         # on Cloud Compute Engine, the service account credentials
         # will be automatically available

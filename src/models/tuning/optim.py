@@ -1,21 +1,20 @@
-import numpy as np
 import logging
-import hydra
-
 from pathlib import Path
 
+import hydra
+import numpy as np
 from ConfigSpace import Configuration
-from smac.facade.hyperparameter_optimization_facade import (
-    HyperparameterOptimizationFacade as HPOFacade,
-)
-from smac.scenario import Scenario
+from smac.facade.hyperparameter_optimization_facade import \
+    HyperparameterOptimizationFacade as HPOFacade
 from smac.multi_objective.parego import ParEGO
+from smac.scenario import Scenario
+
+from src.models.train_model import evaluate_model, load_data, save_model, train
+from src.models.tuning.configspace import configspace_new
+from src.models.tuning.plot_pareto import plot_pareto
 
 # from torch.cuda import is_available as cuda_available
 
-from src.models.tuning.configspace import configspace_new
-from src.models.train_model import train, load_data, evaluate_model, save_model
-from src.models.tuning.plot_pareto import plot_pareto
 
 # Global logger
 log_fmt = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
