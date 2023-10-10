@@ -1,35 +1,29 @@
 from http import HTTPStatus
+
 import pandas as pd
 import torch
-
-import yaml
-
-# from enum import Enum
-from src.models.train_model import load_data
-from fastapi import FastAPI
-from fastapi.responses import HTMLResponse
-from google.cloud import storage
-
 from evidently.metric_preset import (
     DataDriftPreset,
     DataQualityPreset,
     TargetDriftPreset,
 )
+from evidently.report import Report
 from evidently.test_suite import TestSuite
-from evidently.tests import (
-    TestNumberOfMissingValues,
+from evidently.tests import (  # TestPrecisionByClass,; TestRecallByClass,; TestF1ByClass,
     TestAccuracyScore,
+    TestF1Score,
+    TestLogLoss,
+    TestNumberOfMissingValues,
     TestPrecisionScore,
     TestRecallScore,
-    TestF1Score,
     TestRocAuc,
-    TestLogLoss,
-    # TestPrecisionByClass,
-    # TestRecallByClass,
-    # TestF1ByClass,
 )
-from evidently.report import Report
+from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
+from google.cloud import storage
 
+# from enum import Enum
+from src.data.load_data import get_paths, load_data
 from src.models.predict_model import load_model
 
 LOCAL = False  # set this to true when developing locally
@@ -46,13 +40,6 @@ def root():
         "status-code": HTTPStatus.OK,
     }
     return response
-
-
-def get_paths():
-    with open("./src/configs/config.yaml", "r") as yaml_file:
-        cfg = yaml.safe_load(yaml_file)
-
-    return cfg["paths"]
 
 
 def load_reference_data(from_remote: bool = not LOCAL):
