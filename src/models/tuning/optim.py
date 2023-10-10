@@ -9,7 +9,8 @@ from smac.facade.hyperparameter_optimization_facade import \
 from smac.multi_objective.parego import ParEGO
 from smac.scenario import Scenario
 
-from src.models.train_model import evaluate_model, load_data, save_model, train
+from src.models.train_model import evaluate_model, save_model, train
+from src.data.load_data import load_data
 from src.models.tuning.configspace import configspace_new
 from src.models.tuning.plot_pareto import plot_pareto
 

@@ -5,7 +5,7 @@ from typing import List
 import pandas as pd
 import pytest
 
-from src.models.train_model import load_data, normalize_data
+from src.data.load_data import load_data, normalize_data
 from tests.utilities import get_hparams, get_paths, get_test_data
 
 
