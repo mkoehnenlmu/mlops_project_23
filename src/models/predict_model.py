@@ -63,7 +63,7 @@ async def predict(
             "input": input_data,
             "message": HTTPStatus.OK.phrase,
             "status-code": HTTPStatus.OK,
-            "prediction": [{"delay": prediction}],
+            "prediction": [{"delay": prediction.item()}],
         }
 
     return response
@@ -87,7 +87,7 @@ async def batch_predict(
         for data in input_data:
             prediction = await model_predict(model, data)
             # Return the inferred values "delay"
-            predictions.append({"delay": prediction})
+            predictions.append({"delay": prediction.item()})
         response = {
             "input": input_data,
             "message": HTTPStatus.OK.phrase,
