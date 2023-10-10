@@ -1,7 +1,7 @@
 import torch
 
 from src.models.model import LightningModel
-from src.models.train_model import train
+from src.models.train import train
 from tests.utilities import get_hparams, get_normalized_test_data
 
 

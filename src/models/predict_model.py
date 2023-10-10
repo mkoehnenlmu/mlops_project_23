@@ -4,7 +4,13 @@ from typing import Any, Dict, List, Union
 import torch
 from fastapi import BackgroundTasks, FastAPI, HTTPException
 
-from src.data.load_data import get_hparams, load_model, normalize_data, load_data, separate_target
+from src.data.load_data import (
+    get_hparams,
+    load_model,
+    normalize_data,
+    load_data,
+    separate_target,
+)
 from src.models.model import LightningModel
 
 app = FastAPI()

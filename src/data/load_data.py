@@ -12,12 +12,13 @@ from torch import tensor
 from src.models.model import LightningModel
 
 from hydra import compose, initialize
+
 # from omegaconf import OmegaConf
 
 initialize(config_path="../configs/")
 cfg = compose(config_name="config")
 
-# load the paths into a global variablepaths
+# load the paths into a global variable paths
 global paths
 paths = cfg.paths
 global add_configs
@@ -124,12 +125,10 @@ def download_file_from_gcs(
     # will be automatically available
     storage_client = storage.Client()
     bucket = storage_client.get_bucket(bucket_name)
-    blob = bucket.blob(
-        gcs_data_path.split("/")[1] + gcs_data_path.split("/")[2]
-    )  # "processed/train_sample.zip"
+    blob = bucket.blob(gcs_data_path)  # "processed/train_sample.zip"
 
     # store the blob in training data path
-    blob.download_to_filename(gcs_data_path)
+    blob.download_to_filename(local_data_path)
 
 
 def create_normalized_target(
@@ -148,7 +147,9 @@ def create_normalized_target(
     return normalize_data(x), y
 
 
-def separate_target(data: pd.DataFrame, dep_var: str = "DEP_DEL15") -> Tuple[torch.Tensor, torch.Tensor]:
+def separate_target(
+    data: pd.DataFrame, dep_var: str = "DEP_DEL15"
+) -> Tuple[torch.Tensor, torch.Tensor]:
     """
     Normalize input data and split it into features (x) and targets (y).
 
