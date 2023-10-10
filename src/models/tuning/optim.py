@@ -1,3 +1,4 @@
+import json
 import logging
 from pathlib import Path
 from typing import Any, Dict, Union
@@ -5,9 +6,8 @@ from typing import Any, Dict, Union
 import hydra
 import numpy as np
 from ConfigSpace import Configuration
-from smac.facade.hyperparameter_optimization_facade import (
-    HyperparameterOptimizationFacade as HPOFacade,
-)
+from smac.facade.hyperparameter_optimization_facade import \
+    HyperparameterOptimizationFacade as HPOFacade
 from smac.multi_objective.parego import ParEGO
 from smac.scenario import Scenario
 
@@ -67,7 +67,7 @@ def optimize_configuration(cfg) -> Dict[str, Any]:
     """
     # load the data into a global variable
     global data
-    data = load_data(cfg.paths.training_data_path)
+    data = load_data(cfg.paths.training_data_path, cfg.paths.training_bucket)
 
     # Scenario object specifying the optimization environment
     scenario = Scenario(
@@ -110,7 +110,7 @@ def optimize_configuration(cfg) -> Dict[str, Any]:
     return lowest_cost
 
 
-def save_config(hparams: Dict[str, Any]) -> None:
+def save_config(hparams: Dict[str, Any], model_config_path: str) -> None:
     """
     Save hyperparameters to Google Cloud Storage.
 
@@ -128,8 +128,12 @@ def save_config(hparams: Dict[str, Any]) -> None:
     bucket = storage_client.get_bucket("delay_mlops_data")
 
     # upload the hyperparameters to the bucket
-    blob = bucket.blob("model_configs/hyperparams.json")
-    blob.upload_from_string(str(hparams))
+    with open(model_config_path, "w") as json_file:
+        json.dump(hparams, json_file, indent=4)
+    blob = bucket.blob(
+        model_config_path.split("/")[1] + model_config_path.split("/")[2]
+    )
+    blob.upload_from_filename(model_config_path)
 
 
 def train_optimal_model(cfg, hparams, save=True) -> None:
@@ -144,12 +148,12 @@ def train_optimal_model(cfg, hparams, save=True) -> None:
     Returns:
         None
     """
-    # data = load_data(cfg.paths.training_data_path)
+    # data = load_data(cfg.paths.training_data_path, cfg.paths.training_bucket)
 
     model = train(data, dict(hparams))
 
     if save:
-        save_config(model.hyperparams)
+        save_config(model.hyperparams, cfg.paths.model_config_path)
         save_model(model, push=True)
 
 

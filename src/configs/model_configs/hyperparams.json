@@ -1,0 +1,12 @@
+{
+    "batch_size": 205,
+    "criterion": "BCELoss",
+    "device": "cpu",
+    "epochs": 14,
+    "hidden_layers": 2,
+    "hidden_size": 32,
+    "input_size": 486,
+    "lr": 0.09458056220515292,
+    "optimizer": "Adam",
+    "output_size": 1
+}

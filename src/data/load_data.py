@@ -1,44 +1,133 @@
+import json
 import os
+import zipfile
 from typing import Tuple
 
+import hydra
 import pandas as pd
 import torch
+from google.cloud import storage
 from torch import tensor
+
+from src.models.model import LightningModel
+
+
+@hydra.main(config_path="../configs/", config_name="config.yaml", version_base="1.2")
+def load_path_config(cfg) -> None:
+    # load the paths into a global variablepaths
+    global paths
+    paths = cfg.paths
+
+    return paths
+
+
+load_path_config()
+
+
+def get_paths():
+    dict(paths)
+
+    return paths
 
 
 # loads the data from the processed data folder
-def load_data(training_data_path: str) -> pd.DataFrame:
+def load_data(
+    data_path: str = paths.training_data_path, bucket_name: str = paths.training_bucket
+) -> pd.DataFrame:
     """
     Loads training data from a CSV file.
 
     Args:
-        training_data_path (str): Path to the training data CSV file.
+        data_path (str): Path to the training data CSV file.
 
     Returns:
         pd.DataFrame: Loaded training data as a DataFrame.
     """
     # if training data path is available
-    if not os.path.exists(training_data_path):
+    if not os.path.exists(data_path):
         # pull the training data from google cloud storage
-
-        import zipfile
-
-        from google.cloud import storage
-
-        # on Cloud Compute Engine, the service account credentials
-        # will be automatically available
-        storage_client = storage.Client()
-        bucket = storage_client.get_bucket("delay_mlops_data")
-        blob = bucket.blob("processed/train_sample.zip")
-
-        # store the blob in training data path
-        blob.download_to_filename("./data/processed/train_sample.zip")
+        data_path_for_download = data_path.split(".")[0] + ".zip"
+        download_file_from_gcs(
+            data_path_for_download.split("/")[1]
+            + "/"
+            + data_path_for_download.split("/")[2],
+            data_path_for_download,
+            bucket_name,
+        )
 
         # unzip the file
-        with zipfile.ZipFile(training_data_path, "r") as zip_ref:
-            zip_ref.extractall("data/processed/")
+        with zipfile.ZipFile(data_path, "r") as zip_ref:
+            zip_ref.extractall(
+                data_path.split("/")[0] + "/" + data_path.split("/")[1] + "/"
+            )
 
-    return pd.read_csv(training_data_path)
+    return pd.read_csv(data_path)
+
+
+def load_model(model_path: str = paths.model_path) -> LightningModel:
+    if not os.path.exists(model_path):
+        download_model_from_gcs()
+    hparams = get_hparams()
+    # Load the model
+    model = LightningModel(hparams=hparams)
+    loaded_state_dict = torch.load(model_path)
+    model.load_state_dict(loaded_state_dict)
+
+    return model
+
+
+def download_model_from_gcs(
+    model_path: str = paths.model_path, bucket_name: str = paths.training_bucket
+):
+    # Download the model from Google Cloud Storage
+    download_file_from_gcs(model_path, model_path, bucket_name)
+
+
+def download_hparams_from_gcs(
+    model_config_path: str = paths.model_config_path,
+    bucket_name: str = paths.training_bucket,
+):
+    # Download the model from Google Cloud Storage
+    download_file_from_gcs(
+        model_config_path.split("/")[2] + "/" + model_config_path.split("/")[3],
+        model_config_path,
+        bucket_name,
+    )
+
+
+def get_hparams():
+    if not os.path.exists(paths.model_config_path):
+        download_model_from_gcs()
+    with open(paths.model_config_path, "r") as json_file:
+        hparams_str = json_file.read()
+    hparams = json.loads(hparams_str)
+
+    return hparams
+
+
+# loads the data from the processed data folder
+def download_file_from_gcs(
+    gcs_data_path: str, local_data_path: str, bucket_name: str
+) -> pd.DataFrame:
+    """
+    Loads training data from a CSV file.
+
+    Args:
+        data_path (str): Path to the training data CSV file.
+
+    Returns:
+        pd.DataFrame: Loaded training data as a DataFrame.
+    """
+    # on Cloud Compute Engine, the service account credentials
+    # will be automatically available
+    storage_client = storage.Client()
+    bucket = storage_client.get_bucket(bucket_name)
+    blob = bucket.blob(
+        gcs_data_path.split("/")[1] + gcs_data_path.split("/")[2]
+    )  # "processed/train_sample.zip"
+
+    # store the blob in training data path
+    blob.download_to_filename(gcs_data_path)
 
 
 def normalize_data(
