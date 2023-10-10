@@ -41,3 +41,19 @@ def build_features(ic_trains: pd.DataFrame):
                         for i in ic_trains["TIP"]]
 
     return ic_trains
+
+
+def build_features_new(data:pd.DataFrame):
+    
+    # Convert distance features
+    data["DISTANCE"] = [int(x[0]) for x in (data["DEP_TIME_BLK"].str.split("-"))]
+
+    # convert columns to one hot encoding
+    data = pd.concat([data, data["CARRIER_NAME"].str.get_dummies()],
+                        axis=1)
+    data = pd.concat([data, data["DEPARTING_AIRPORT"].str.get_dummies()],
+                        axis=1)
+    data = pd.concat([data, data["PREVIOUS_AIRPORT"].str.get_dummies()],
+                        axis=1)
+
+    return data

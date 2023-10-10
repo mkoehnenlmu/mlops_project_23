@@ -11,3 +11,4 @@ smac >= 2.0.0
 matplotlib
 numpy
 ConfigSpace
+zipfile36

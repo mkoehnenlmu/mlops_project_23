@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import logging
 import os
-import click
 import pandas as pd
+
+from mpire import WorkerPool
 
 from pathlib import Path
 from dotenv import find_dotenv, load_dotenv
@@ -10,10 +11,7 @@ from dotenv import find_dotenv, load_dotenv
 import src.features.build_features as bf
 
 
-@click.command()
-@click.argument('input_filepath', type=click.Path(exists=True))
-@click.argument('output_filepath', type=click.Path())
-def main(input_filepath, output_filepath):
+def make_old_dataset(input_filepath, output_filepath):
     """ Runs data processing scripts to turn raw data from
     (../input_filepath) into cleaned data ready to be analyzed
     (saved in ../output_filepath).
@@ -42,6 +40,41 @@ def main(input_filepath, output_filepath):
     final_dataset.to_csv("./data/processed/data.csv", index=False)
 
 
+def make_new_dataset(input_filepath, output_filepath):
+    """ Runs data processing scripts to turn raw data from
+    (../input_filepath) into cleaned data ready to be analyzed
+    (saved in ../output_filepath).
+    """
+    logger = logging.getLogger(__name__)
+    logger.info('making final data set from raw data')
+
+    train = pd.read_csv(input_filepath+"train.csv")
+    test = pd.read_csv(input_filepath+"test.csv")
+
+    train = train.sample(2000000, random_state=42)
+    test = test.sample(500000, random_state=42)
+
+    logger.info('Computing train features')
+    feature_data_train = bf.build_features_new(train)
+    logger.info('Computing test features')
+    feature_data_test = bf.build_features_new(test)
+
+    final_dataset_train = feature_data_train.drop(["CARRIER_NAME", "DEPARTING_AIRPORT",
+                                       "DEP_TIME_BLK", "PREVIOUS_AIRPORT"], axis=1)
+    final_dataset_test = feature_data_test.drop(["CARRIER_NAME", "DEPARTING_AIRPORT",
+                                       "DEP_TIME_BLK", "PREVIOUS_AIRPORT"], axis=1)
+
+    final_dataset_train.to_csv(output_filepath+"train_large.csv", index=False)
+    final_dataset_test.to_csv(output_filepath+"test_large.csv", index=False)
+
+
+def main(input_filepath, output_filepath, data: str = "new"):
+    if data == "new":
+        make_new_dataset(input_filepath, output_filepath)
+    else:
+        make_old_dataset(input_filepath, output_filepath)
+
+
 if __name__ == '__main__':
     log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     logging.basicConfig(level=logging.INFO, format=log_fmt)
@@ -53,4 +86,4 @@ if __name__ == '__main__':
     # load up the .env entries as environment variables
     load_dotenv(find_dotenv())
 
-    main(["./data/raw/", "./data/processed/"])
+    main("data/raw/", "data/processed/", "new")

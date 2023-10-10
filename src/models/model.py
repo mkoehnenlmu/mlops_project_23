@@ -13,23 +13,27 @@ class LightningModel(pl.LightningModule):
         # define the neural network
         layers = []
         layers.append(nn.Linear(hparams["input_size"],
-                                int(hparams["hidden_size"] / 2)))
-        layers.append(
-            nn.Linear(int(hparams["hidden_size"] / 2), hparams["hidden_size"])
-        )
-        for i in range(hparams["hidden_layers"] - 1):
+                                int(hparams["hidden_size"])))
+        # add activation
+        layers.append(nn.ReLU())
+        #layers.append(
+        #    nn.Linear(int(hparams["hidden_size"] / 2), hparams["hidden_size"])
+        #)
+        for i in range(hparams["hidden_layers"]):
             layers.append(
                 nn.Linear(
-                    int(hparams["hidden_size"] / (i + 1)),
+                    int(hparams["hidden_size"] / (i+1)),
                     int(hparams["hidden_size"] / (i + 2)),
                 )
             )
+            layers.append(nn.ReLU())
         layers.append(
             nn.Linear(
-                int(hparams["hidden_size"] / (hparams["hidden_layers"])),
+                int(hparams["hidden_size"] / (hparams["hidden_layers"]+1)),
                 hparams["output_size"],
             )
         )
+        layers.append(nn.Sigmoid())
         self.model = nn.Sequential(*layers)
 
         if hparams["criterion"] == "MSELoss":
@@ -38,6 +42,10 @@ class LightningModel(pl.LightningModule):
             self.loss = nn.NLLLoss()
         elif hparams["criterion"] == "HuberLoss":
             self.loss = nn.HuberLoss()
+        elif hparams["criterion"] == "BCELoss":
+            self.loss = nn.BCELoss()
+        elif hparams["criterion"] == "SoftMarginLoss":
+            self.loss = nn.SoftMarginLoss()
         else:
             raise NotImplementedError
 
@@ -63,12 +71,15 @@ class LightningModel(pl.LightningModule):
                 "Expected each sample to have shape"
                 + f'[{self.hyperparams["input_size"]}]'
             )
-        return self.model(x)
+        if self.hyperparams["criterion"] == "SoftMarginLoss":
+            return self.model(x).clamp(min=-1, max=1)
+        else:
+            return self.model(x).clamp(min=0, max=1)
 
     def training_step(self, batch, batch_idx):
         x, y = batch
         y_hat = self.forward(x)
-        loss = self.loss(y_hat, y)
+        loss = self.loss(y_hat, y.unsqueeze(1))
         self.log("train_loss", loss)
 
-        return {"loss": loss}
+        return loss

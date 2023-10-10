@@ -13,7 +13,7 @@ from smac.multi_objective.parego import ParEGO
 
 # from torch.cuda import is_available as cuda_available
 
-from src.models.tuning.configspace import configspace
+from src.models.tuning.configspace import configspace, configspace_new
 from src.models.train_model import train, load_data, evaluate_model
 from src.models.tuning.plot_pareto import plot_pareto
 
@@ -22,7 +22,8 @@ log_fmt = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 logging.basicConfig(level=logging.INFO, format=log_fmt)
 logger = logging.getLogger(__name__)
 
-data = load_data("./data/processed/data.csv")
+data = load_data("./data/processed/train.csv")
+#test_data = load_data("./data/processed/test_sample.csv")
 
 
 def evaluate_config(config: Configuration, seed: int = 42) -> float:
@@ -35,23 +36,24 @@ def evaluate_config(config: Configuration, seed: int = 42) -> float:
 
     model = train(train_data, params)
 
-    loss = evaluate_model(model, test_data)
+    accuracy, precision, recall, f1, zero_one_loss = evaluate_model(model, test_data)
 
-    print("Loss: " + str(loss.item()))
+    print("Loss (F1): " + str(f1.item()))
 
+    # SMAC minimizes, so return 1-F1 score
     return {
-        "rmse": loss.item(),
-        "size": np.sqrt(sum(p.numel() for p in model.parameters())),
+        "loss": 1-f1.item() if not np.isnan(f1.item()) else 1,
+        "size": np.log10(sum(p.numel() for p in model.parameters())),
     }
 
 
 def optimize_configuration(cfg):
     # Scenario object specifying the optimization environment
     scenario = Scenario(
-        configspace,
+        configspace_new,
         name="HPO2",
-        objectives=["rmse", "size"],  # multi objective optim
-        n_trials=10,
+        objectives=["loss", "size"],  # multi objective optim
+        n_trials=200,
         walltime_limit=3600,  # max total time
         n_workers=4,
         output_directory=Path("./models/optimizations/"),
@@ -60,7 +62,7 @@ def optimize_configuration(cfg):
     smac = HPOFacade(
         scenario=scenario,
         target_function=evaluate_config,
-        initial_design=HPOFacade.get_initial_design(scenario, n_configs=10),
+        initial_design=HPOFacade.get_initial_design(scenario, n_configs=20),
         multi_objective_algorithm=ParEGO(scenario),
         intensifier=HPOFacade.get_intensifier(scenario, max_config_calls=2),
     )
