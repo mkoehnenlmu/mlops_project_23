@@ -7,6 +7,7 @@ from typing import Tuple
 import pandas as pd
 import torch
 from google.cloud import storage
+from hydra import compose, initialize
 from torch import tensor
 
 from src.models.model import LightningModel
@@ -15,7 +16,7 @@ from hydra import compose, initialize
 
 # from omegaconf import OmegaConf
 
-initialize(config_path="../configs/")
+initialize(config_path="../configs/", version_base="1.2")
 cfg = compose(config_name="config")
 
 # load the paths into a global variable paths
