@@ -3,7 +3,7 @@ import os
 import zipfile
 from typing import Tuple
 
-import hydra
+# import hydra
 import pandas as pd
 import torch
 from google.cloud import storage
@@ -11,19 +11,17 @@ from torch import tensor
 
 from src.models.model import LightningModel
 
+from hydra import compose, initialize
+# from omegaconf import OmegaConf
 
-@hydra.main(config_path="../configs/", config_name="config.yaml", version_base="1.2")
-def load_config(cfg) -> None:
-    # load the paths into a global variablepaths
-    global paths
-    paths = cfg.paths
-    global add_configs
-    add_configs = cfg.hyperparameters
+initialize(config_path="../configs/")
+cfg = compose(config_name="config")
 
-    return paths
-
-
-load_config()
+# load the paths into a global variablepaths
+global paths
+paths = cfg.paths
+global add_configs
+add_configs = cfg.hyperparameters
 
 
 def get_paths():
