@@ -1,18 +1,12 @@
-import os
 from contextlib import nullcontext as does_not_raise
 
 import pytest
 import torch
 
 from src.models.model import LightningModel
-from tests.utilities import (get_normalized_test_data, get_test_hparams,
-                             get_test_paths)
+from tests.utilities import get_normalized_test_data, get_test_hparams
 
 
-@pytest.mark.skipif(
-    not os.path.exists(get_test_paths()["training_data_path"]),
-    reason="Data files not found",
-)
 def test_model_output() -> None:
     x, _ = get_normalized_test_data()
 

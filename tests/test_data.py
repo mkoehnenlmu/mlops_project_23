@@ -17,10 +17,8 @@ def test_data_shape() -> None:
     data = load_data(
         get_test_paths()["training_data_path"], get_test_paths()["training_bucket"]
     )
-    assert len(data) == 66595, "Dataset did not have the correct number of samples"
-    assert (
-        data.shape[1] == get_test_hparams()["input_size"] + 1
-    ), "Dataset did not have the correct number of columns"
+    assert len(data) == 100001, "Dataset did not have the correct number of samples"
+    assert (data.shape[1] == get_test_hparams()["input_size"] + 1), "Dataset did not have the correct number of columns"
 
 
 def test_x_y_split() -> None:

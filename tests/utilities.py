@@ -3,10 +3,10 @@ from typing import Any, Dict, List, Tuple
 import pandas as pd
 import torch
 
-from src.data.load_data import get_hparams, get_paths
+from src.data.load_data import get_hparams, get_paths, get_additional_configs
 
 
-def get_test_pathss() -> Dict[str, Any]:
+def get_test_paths() -> Dict[str, Any]:
     return get_paths()
 
 
@@ -18,6 +18,19 @@ def get_test_hparams() -> Dict[str, Any]:
 
 
 def get_test_data() -> pd.DataFrame:
+    columns: List[str] = [f"f{i}" for i in range(get_hparams()["input_size"])]\
+        + [get_additional_configs()["dependent_var"]]
+    values: List[float] = torch.randn(get_hparams()["input_size"] + 1).tolist()
+    print(len(columns), len(values))
+    data: Dict[str, float] = {columns[i]: values[i] for i in range(len(columns))}
+    return pd.DataFrame(data, index=[0])
+
+
+def get_normalized_test_data() -> Tuple[torch.Tensor, torch.Tensor]:
+    return torch.randn(2, get_hparams()["input_size"]), torch.rand(2)
+
+
+def get_test_data_old() -> pd.DataFrame:
     columns: List[str] = [
         "TSI",
         "TIP",
@@ -206,7 +219,3 @@ def get_test_data() -> pd.DataFrame:
     ]
     data: Dict[str, float] = {columns[i]: values[i] for i in range(len(columns))}
     return pd.DataFrame(data, index=[0])
-
-
-def get_normalized_test_data() -> Tuple[torch.Tensor, torch.Tensor]:
-    return torch.randn(2, 90), torch.rand(2, 1)

@@ -13,21 +13,25 @@ from src.models.model import LightningModel
 
 
 @hydra.main(config_path="../configs/", config_name="config.yaml", version_base="1.2")
-def load_path_config(cfg) -> None:
+def load_config(cfg) -> None:
     # load the paths into a global variablepaths
     global paths
     paths = cfg.paths
+    global add_configs
+    add_configs = cfg.hyperparameters
 
     return paths
 
 
-load_path_config()
+load_config()
 
 
 def get_paths():
-    dict(paths)
+    return dict(paths)
 
-    return paths
+
+def get_additional_configs():
+    return dict(add_configs)
 
 
 # loads the data from the processed data folder
