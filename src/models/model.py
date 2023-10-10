@@ -16,20 +16,20 @@ class LightningModel(pl.LightningModule):
                                 int(hparams["hidden_size"])))
         # add activation
         layers.append(nn.ReLU())
-        #layers.append(
+        # layers.append(
         #    nn.Linear(int(hparams["hidden_size"] / 2), hparams["hidden_size"])
-        #)
+        # )
         for i in range(hparams["hidden_layers"]):
             layers.append(
                 nn.Linear(
-                    int(hparams["hidden_size"] / (i+1)),
+                    int(hparams["hidden_size"] / (i + 1)),
                     int(hparams["hidden_size"] / (i + 2)),
                 )
             )
             layers.append(nn.ReLU())
         layers.append(
             nn.Linear(
-                int(hparams["hidden_size"] / (hparams["hidden_layers"]+1)),
+                int(hparams["hidden_size"] / (hparams["hidden_layers"] + 1)),
                 hparams["output_size"],
             )
         )

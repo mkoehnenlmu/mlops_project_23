@@ -23,10 +23,10 @@ def load_data(training_data_path: str):
         blob = bucket.blob("processed/train_sample.zip")
 
         # store the blob in training data path
-        blob.download_to_filename(training_data_path)
+        blob.download_to_filename("./data/processed/train_sample.zip")
 
         # unzip the file
-        with zipfile.ZipFile(training_data_path, 'r') as zip_ref:
+        with zipfile.ZipFile(training_data_path, "r") as zip_ref:
             zip_ref.extractall("data/processed/")
 
     return pd.read_csv(training_data_path)
@@ -41,16 +41,14 @@ def normalize_data(data: pd.DataFrame, dep_var: str = "DEP_DEL15"):
     # for every column in the input values, apply a min max normalization
     # that doesn't set any values to NaN
     for i in range(x.shape[1]):
-        x[:, i] = (x[:, i] - x[:, i].min()) / (
-            x[:, i].max() - x[:, i].min() + 1e-6
-        )
+        x[:, i] = (x[:, i] - x[:, i].min()) / \
+            (x[:, i].max() - x[:, i].min() + 1e-6)
 
     return x, y
 
 
 # trains the lightning model with the data
 def train(data: pd.DataFrame, hparams: dict):
-
     x, y = normalize_data(data, "DEP_DEL15")
 
     # if the loss function is SoftMarginLoss,
@@ -87,29 +85,28 @@ def train(data: pd.DataFrame, hparams: dict):
 def evaluate_model(model: LightningModel, data: pd.DataFrame):
     x, y = normalize_data(data)
     predictions = model.forward(x)
-    #rmse = ((preds - y) ** 2).mean().sqrt()
+    # rmse = ((preds - y) ** 2).mean().sqrt()
     y = y.unsqueeze(1)
 
     # get the optimal threshold to maximize the f1 score
     best_threshold = 0.5
     f1 = 0
     for i in range(100):
-       threshold = i / 100
-       preds = (predictions >= threshold).float()
-       true_pos = ((preds >= threshold) & (y == 1)).sum()
-       false_pos = ((preds >= threshold) & (y == 0)).sum()
-       false_neg = ((preds < threshold) & (y == 1)).sum()
-       precision = true_pos / (true_pos + false_pos)
-       recall = true_pos / (true_pos + false_neg)
-       f1_new = 2 * precision * recall / (precision + recall)
-       if f1_new > f1:
-           f1 = f1_new
-           best_threshold = threshold
-
+        threshold = i / 100
+        preds = (predictions >= threshold).float()
+        true_pos = ((preds >= threshold) & (y == 1)).sum()
+        false_pos = ((preds >= threshold) & (y == 0)).sum()
+        false_neg = ((preds < threshold) & (y == 1)).sum()
+        precision = true_pos / (true_pos + false_pos)
+        recall = true_pos / (true_pos + false_neg)
+        f1_new = 2 * precision * recall / (precision + recall)
+        if f1_new > f1:
+            f1 = f1_new
+            best_threshold = threshold
 
     # compute accuracy, precision, recall, and f1 score for preds and y
     accuracy = ((preds >= best_threshold) == y).sum() / y.shape[0]
-    true_pos = ((preds >= best_threshold) == y ).sum()
+    true_pos = ((preds >= best_threshold) == y).sum()
     false_pos = ((preds >= best_threshold) & (y == 0)).sum()
     false_neg = ((preds < best_threshold) & (y == 1)).sum()
     precision = true_pos / (true_pos + false_pos)
@@ -123,7 +120,7 @@ def evaluate_model(model: LightningModel, data: pd.DataFrame):
 # save the model in the models folder
 def save_model(model: LightningModel, tag: str = "latest", push: bool = True):
     # save the trained model to the shared directory on disk
-    save(model.state_dict(), "models/model_new.pth")
+    save(model.state_dict(), "models/model.pth")
 
     # push the model to google cloud storage
     if push:
@@ -135,8 +132,8 @@ def save_model(model: LightningModel, tag: str = "latest", push: bool = True):
         bucket = storage_client.get_bucket("delay_mlops_data")
         # upload the trained model to the bucket with
         # the tag set
-        blob = bucket.blob("models/model_new.pth")
-        blob.upload_from_filename("models/model_new.pth")
+        blob = bucket.blob("models/model.pth")
+        blob.upload_from_filename("models/model.pth")
 
 
 @hydra.main(config_path="../configs/", config_name="config.yaml",
@@ -166,11 +163,20 @@ def main(cfg):
 
     model = train(train_data, hparams)
 
-    accuracy, precision, recall, f1, zero_one_loss = evaluate_model(model, test_data)
+    acc, pred, recall, f1, zol = evaluate_model(model, test_data)
 
-    print("Model training loss (Accuracy, Precision, Recall, F1, 0-1 Loss): " +
-            str(accuracy.item()) + ", " + str(precision.item()) + ", " +
-            str(recall.item()) + ", " + str(f1.item()) + ", " + str(zero_one_loss.item()))
+    print(
+        "Model training loss (Accuracy, Precision, Recall, F1, 0-1 Loss): "
+        + str(acc.item())
+        + ", "
+        + str(pred.item())
+        + ", "
+        + str(recall.item())
+        + ", "
+        + str(f1.item())
+        + ", "
+        + str(zol.item())
+    )
 
     # TODO save scores with hyperparams in database
 

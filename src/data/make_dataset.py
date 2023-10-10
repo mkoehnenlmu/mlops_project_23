@@ -3,8 +3,6 @@ import logging
 import os
 import pandas as pd
 
-from mpire import WorkerPool
-
 from pathlib import Path
 from dotenv import find_dotenv, load_dotenv
 
@@ -12,60 +10,65 @@ import src.features.build_features as bf
 
 
 def make_old_dataset(input_filepath, output_filepath):
-    """ Runs data processing scripts to turn raw data from
+    """Runs data processing scripts to turn raw data from
     (../input_filepath) into cleaned data ready to be analyzed
     (saved in ../output_filepath).
     """
     logger = logging.getLogger(__name__)
-    logger.info('making final data set from raw data')
+    logger.info("making final data set from raw data")
     datasets = []
 
     for file in os.listdir(input_filepath):
         if ".csv" in file:
-            data = pd.read_csv(os.path.join(input_filepath, file),
-                               sep=",", quoting=False)
+            data = pd.read_csv(
+                os.path.join(input_filepath, file), sep=",", quoting=False
+            )
             datasets.append(data)
 
     data = pd.concat(datasets)
 
     # filter out trains that are not ICE or IC
-    ic_trains = data[~data['TIN'].isna() & data['TIN'].str.contains('IC')]
+    ic_trains = data[~data["TIN"].isna() & data["TIN"].str.contains("IC")]
 
     feature_data = bf.build_features(ic_trains)
 
-    final_dataset = feature_data.drop(["TIN", "TIRE", "TIL",
-                                       "TSC", "TA", "TIR", "index",
-                                       "TID", "TIT", "TIM", "TAA"], axis=1)
+    final_dataset = feature_data.drop(
+        ["TIN", "TIRE", "TIL", "TSC", "TA", "TIR", "index", "TID", "TIT", "TIM", "TAA"],
+        axis=1,
+    )
 
     final_dataset.to_csv("./data/processed/data.csv", index=False)
 
 
 def make_new_dataset(input_filepath, output_filepath):
-    """ Runs data processing scripts to turn raw data from
+    """Runs data processing scripts to turn raw data from
     (../input_filepath) into cleaned data ready to be analyzed
     (saved in ../output_filepath).
     """
     logger = logging.getLogger(__name__)
-    logger.info('making final data set from raw data')
+    logger.info("making final data set from raw data")
 
-    train = pd.read_csv(input_filepath+"train.csv")
-    test = pd.read_csv(input_filepath+"test.csv")
+    train = pd.read_csv(input_filepath + "train.csv")
 
-    train = train.sample(2000000, random_state=42)
-    test = test.sample(500000, random_state=42)
+    train_s = train.sample(500000, random_state=42)
+    train_inverse = train.drop(train_s.index)
+    train_test = train_inverse.sample(100000)
 
-    logger.info('Computing train features')
+    logger.info("Computing train features")
     feature_data_train = bf.build_features_new(train)
-    logger.info('Computing test features')
-    feature_data_test = bf.build_features_new(test)
+    feature_data_train = bf.build_features_new(train_test)
 
-    final_dataset_train = feature_data_train.drop(["CARRIER_NAME", "DEPARTING_AIRPORT",
-                                       "DEP_TIME_BLK", "PREVIOUS_AIRPORT"], axis=1)
-    final_dataset_test = feature_data_test.drop(["CARRIER_NAME", "DEPARTING_AIRPORT",
-                                       "DEP_TIME_BLK", "PREVIOUS_AIRPORT"], axis=1)
+    final_dataset_train = feature_data_train.drop(
+        ["CARRIER_NAME", "DEPARTING_AIRPORT", "DEP_TIME_BLK", "PREVIOUS_AIRPORT"],
+        axis=1,
+    )
+    final_dataset_test = train_test.drop(
+        ["CARRIER_NAME", "DEPARTING_AIRPORT", "DEP_TIME_BLK", "PREVIOUS_AIRPORT"],
+        axis=1,
+    )
 
-    final_dataset_train.to_csv(output_filepath+"train_large.csv", index=False)
-    final_dataset_test.to_csv(output_filepath+"test_large.csv", index=False)
+    final_dataset_train.to_csv(output_filepath + "train_sample.csv", index=False)
+    final_dataset_test.to_csv(output_filepath + "test_sample.csv", index=False)
 
 
 def main(input_filepath, output_filepath, data: str = "new"):
@@ -75,8 +78,8 @@ def main(input_filepath, output_filepath, data: str = "new"):
         make_old_dataset(input_filepath, output_filepath)
 
 
-if __name__ == '__main__':
-    log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+if __name__ == "__main__":
+    log_fmt = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     logging.basicConfig(level=logging.INFO, format=log_fmt)
 
     # not used in this stub but often useful for finding various files

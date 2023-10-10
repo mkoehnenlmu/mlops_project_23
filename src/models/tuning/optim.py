@@ -13,8 +13,8 @@ from smac.multi_objective.parego import ParEGO
 
 # from torch.cuda import is_available as cuda_available
 
-from src.models.tuning.configspace import configspace, configspace_new
-from src.models.train_model import train, load_data, evaluate_model
+from src.models.tuning.configspace import configspace_new
+from src.models.train_model import train, load_data, evaluate_model, save_model
 from src.models.tuning.plot_pareto import plot_pareto
 
 # Global logger
@@ -22,12 +22,9 @@ log_fmt = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 logging.basicConfig(level=logging.INFO, format=log_fmt)
 logger = logging.getLogger(__name__)
 
-data = load_data("./data/processed/train.csv")
-#test_data = load_data("./data/processed/test_sample.csv")
-
 
 def evaluate_config(config: Configuration, seed: int = 42) -> float:
-    params = config.get_dictionary()
+    params = dict(config)  # .get_dictionary()
 
     print("Evaluate config: " + str(params))
 
@@ -36,24 +33,29 @@ def evaluate_config(config: Configuration, seed: int = 42) -> float:
 
     model = train(train_data, params)
 
-    accuracy, precision, recall, f1, zero_one_loss = evaluate_model(model, test_data)
+    accuracy, precision, recall, f1, zero_one_loss = evaluate_model(model,
+                                                                    test_data)
 
     print("Loss (F1): " + str(f1.item()))
 
     # SMAC minimizes, so return 1-F1 score
     return {
-        "loss": 1-f1.item() if not np.isnan(f1.item()) else 1,
+        "loss": 1 - f1.item() if not np.isnan(f1.item()) else 1,
         "size": np.log10(sum(p.numel() for p in model.parameters())),
     }
 
 
 def optimize_configuration(cfg):
+    # load the data into a global variable
+    global data
+    data = load_data(cfg.paths.training_data_path)
+
     # Scenario object specifying the optimization environment
     scenario = Scenario(
         configspace_new,
         name="HPO2",
         objectives=["loss", "size"],  # multi objective optim
-        n_trials=200,
+        n_trials=cfg.tuning.num_configs,
         walltime_limit=3600,  # max total time
         n_workers=4,
         output_directory=Path("./models/optimizations/"),
@@ -89,12 +91,26 @@ def optimize_configuration(cfg):
     return lowest_cost
 
 
-def train_optimal_model(cfg, hparams, save_model=True):
-    data = load_data(cfg.paths.training_data_path)
+def save_config(hparams: dict):
+    from google.cloud import storage
 
-    model = train(data, hparams)
+    # on Cloud Compute Engine, the service account credentials
+    # will be automatically available
+    storage_client = storage.Client()
+    bucket = storage_client.get_bucket("delay_mlops_data")
 
-    if save_model:
+    # upload the hyperparameters to the bucket
+    blob = bucket.blob("model_configs/hyperparams.json")
+    blob.upload_from_string(str(hparams))
+
+
+def train_optimal_model(cfg, hparams, save=True):
+    # data = load_data(cfg.paths.training_data_path)
+
+    model = train(data, dict(hparams[0]))
+
+    if save:
+        save_config(model.hyperparams)
         save_model(model, push=True)
 
 

@@ -30,8 +30,8 @@ def plot_pareto(smac: AbstractFacade, incumbents: list[Configuration]) -> None:
     pareto_costs_x, pareto_costs_y = pareto_costs[:, 0], pareto_costs[:, 1]
 
     plt.scatter(costs_x, costs_y, marker="x", label="Configuration")
-    plt.scatter(pareto_costs_x, pareto_costs_y, marker="x", c="r",
-                label="Incumbent")
+    plt.scatter(pareto_costs_x, pareto_costs_y, marker="x",
+                c="r", label="Incumbent")
     plt.step(
         [pareto_costs_x[0]]
         + pareto_costs_x.tolist()
