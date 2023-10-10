@@ -3,6 +3,8 @@ FROM --platform=linux/amd64 python:3.11-slim
 # install updates
 RUN apt-get update && \
     apt-get install --no-install-recommends -y build-essential && \
+    apt-get install swig3.0 && \
+    ln -s /usr/bin/swig3.0 /usr/bin/swig && \
     apt clean && rm -rf /var/lib/apt/lists/*
 
 # copy inference code
@@ -22,9 +24,6 @@ WORKDIR /
 ENV DVC_SECRET=$DVC_SECRET
 
 # install python packages and torch without gpu support
-RUN apt-get remove swig
-RUN apt-get install swig3.0
-RUN ln -s /usr/bin/swig3.0 /usr/bin/swig
 RUN pip3 install torch --index-url https://download.pytorch.org/whl/cpu
 RUN pip3 install --no-cache-dir -r /requirements.txt
 
