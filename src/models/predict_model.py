@@ -71,10 +71,11 @@ async def model_predict(model: LightningModel, input_data: str) -> torch.Tensor:
     return prediction.item()
 
 
-async def process_prediction(input_data: List[str],
-                             model: LightningModel,
-                             background_tasks: BackgroundTasks,) -> float:
-
+async def process_prediction(
+    input_data: List[str],
+    model: LightningModel,
+    background_tasks: BackgroundTasks,
+):
     prediction = await model_predict(model, input_data)
     now = str(datetime.now())
     background_tasks.add_task(
@@ -108,15 +109,18 @@ def add_to_database(
     else:
         # on Cloud Compute Engine, the service account credentials will be automatically available
         storage_client = storage.Client()
-        bucket = storage_client.get_bucket("delay_mlops_inference")
+        bucket = storage_client.get_bucket(get_paths()["inference_bucket"])
         # open the file "database.csv" from the bucket add a new to to the csv, the upload again
-        blob = bucket.blob("inference/database.csv")
-        blob.download_to_filename("data/inference/database.csv")
+        blob = bucket.blob(
+            get_paths()["inference_data_path"].split["/"][1]
+            + get_paths()["inference_data_path"].split["/"][2]
+        )
+        blob.download_to_filename(get_paths()["inference_data_path"])
     with open("database.csv", "a") as f:
         writer = csv.writer(f)
         writer.writerow([now, input_data, prediction])
     if not local:
-        blob.upload_from_filename("data/inference/database.csv")
+        blob.upload_from_filename(get_paths()["inference_data_path"])
 
 
 @app.post("/predict")
