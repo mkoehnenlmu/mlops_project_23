@@ -10,11 +10,11 @@ from src.models.model import LightningModel
 
 
 # trains the lightning model with the data
-def train(
+def train_logged(
     x: torch.Tensor,
     y: torch.Tensor,
-    x_train: torch.Tensor,
-    y_train: torch.Tensor,
+    x_test: torch.Tensor,
+    y_test: torch.Tensor,
     hparams: Dict[str, Any],
 ) -> LightningModel:
     """
@@ -23,6 +23,8 @@ def train(
     Args:
         x (torch.Tensor): Input features as a torch Tensor.
         y (torch.Tensor): Target values as a torch Tensor.
+        x_test (torch.Tensor): Input features as a torch Tensor.
+        y_test (torch.Tensor): Target values as a torch Tensor.
         hparams (Dict[str, Any]): Hyperparameters for training.
 
     Returns:
@@ -32,6 +34,7 @@ def train(
     # transform the target from {0,1} to {-1,1}
     if hparams["criterion"] == "SoftMarginLoss":
         y = y * 2 - 1
+        y_test = y_test * 2 - 1
 
     hparams["input_size"] = x.shape[1]
 
@@ -62,8 +65,52 @@ def train(
     trainer.fit(
         model=model,
         train_dataloaders=model.train_dataloader(list(zip(x, y.float()))),
-        val_dataloaders=model.val_dataloader(list(zip(x_train, y_train.float()))),
+        val_dataloaders=model.val_dataloader(list(zip(x_test, y_test.float()))),
     )
+
+    return model
+
+
+def train(x: torch.Tensor, y: torch.Tensor, hparams: Dict[str, Any]) -> LightningModel:
+    """
+    Train a LightningModel using the given data and hyperparameters.
+
+    Args:
+        x (torch.Tensor): Input features as a torch Tensor.
+        y (torch.Tensor): Target values as a torch Tensor.
+        hparams (Dict[str, Any]): Hyperparameters for training.
+
+    Returns:
+        LightningModel: Trained LightningModel.
+    """
+    # if the loss function is SoftMarginLoss,
+    # transform the target from {0,1} to {-1,1}
+    if hparams["criterion"] == "SoftMarginLoss":
+        y = y * 2 - 1
+
+    hparams["input_size"] = x.shape[1]
+
+    model = LightningModel(hparams)
+
+    checkpoint_callback = pl.callbacks.ModelCheckpoint(
+        monitor="train_loss",
+        mode="min",
+    )
+
+    # train the model with pytorch lightning and the hyperparameters
+    trainer = pl.Trainer(
+        max_epochs=hparams["epochs"],
+        gradient_clip_val=0.5,
+        limit_train_batches=30,
+        limit_val_batches=0,
+        logger=False,
+        callbacks=[checkpoint_callback],
+        accelerator=hparams["device"],
+        num_sanity_val_steps=0,
+    )
+
+    # train the model without validation data
+    trainer.fit(model, model.train_dataloader(list(zip(x, y.float()))))
 
     return model
 

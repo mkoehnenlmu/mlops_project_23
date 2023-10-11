@@ -3,7 +3,7 @@ from typing import Any, Dict
 from torch import backends
 
 from src.data.load_data import load_data, create_normalized_target
-from src.models.train import evaluate_model, save_model, train
+from src.models.train import evaluate_model, save_model, train_logged
 
 from hydra import compose
 
@@ -46,7 +46,7 @@ def main(cfg: Dict[str, Any]) -> None:
     if cfg.hyperparameters.device == "cpu":
         backends.cudnn.enabled = False
 
-    model = train(x, y, x_test, y_test, hparams)
+    model = train_logged(x, y, x_test, y_test, hparams)
 
     acc, pred, recall, f1, zol = evaluate_model(model, test_data)
 
