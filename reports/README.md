@@ -312,7 +312,7 @@ model creation, hyperparameters and logging. Inference is one of the most vital 
 >
 > Answer:
 
-Our code coverage stands at 91%, indicating that our unit tests cover a substantial portion of our codebase. While a high code coverage percentage is an encouraging sign, it doesn't guarantee that the code is entirely error-free. Code coverage primarily measures which parts of the code have been executed during testing, but it doesn't assess the quality of the tests themselves.
+Our code coverage stands at 76%, indicating that our unit tests cover a substantial portion of our codebase. Main misses in the code coverage concern the training of the model which is hard to reflect due to long runtimes and a encapsulation in hyperparamter tuning, while the best covered part is inference which matches the focus of our tests descibred above. While a high code coverage percentage is an encouraging sign, it doesn't guarantee that the code is entirely error-free. Code coverage primarily measures which parts of the code have been executed during testing, but it doesn't assess the quality of the tests themselves.
 
 Even with near 100% code coverage, we cannot ensure error free code because it's possible that certain edge cases or complex scenarios may not be adequately tested. Additionally, the quality of the tests matters; poorly designed or insufficient tests may not catch all potential issues.
 
