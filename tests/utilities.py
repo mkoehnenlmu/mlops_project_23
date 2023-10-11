@@ -30,6 +30,10 @@ def get_normalized_test_data() -> Tuple[torch.Tensor, torch.Tensor]:
     return torch.randn(2, get_hparams()["input_size"]), torch.rand(2)
 
 
+def get_inference_test_data() -> Tuple[torch.Tensor, torch.Tensor]:
+    return torch.randn(1, get_hparams()['input_size']).tolist()
+
+
 def get_test_data_old() -> pd.DataFrame:
     columns: List[str] = [
         "TSI",

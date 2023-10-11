@@ -1,6 +1,9 @@
 from fastapi.testclient import TestClient
 from http import HTTPStatus
 from src.models.predict_model import app
+from src.models.model import LightningModel
+import src.models.predict_model
+from tests.utilities import get_hparams, get_test_data, get_inference_test_data
 import pytest
 import json
 
@@ -8,31 +11,41 @@ import json
 client = TestClient(app)
 
 
+# define that a mock model is used when calling in predict or batch_predict on the client
+def mock_load_model():
+    return LightningModel(get_hparams())
+
+
+# define that a empty file is returned when calling load_data in predict or batch_predict on the client
+def mock_load_data():
+    return get_test_data()
+
+
 def test_read_main():
     response = client.get("/")
-    assert response.status_code == 200
     assert response.json() == {
         "message": HTTPStatus.OK.phrase,
-        "status-code": HTTPStatus.OK,
+        "status-code": "200",
     }
 
 
 @pytest.mark.parametrize(
     "input_data, expected_status_code",
     [
-        (("[8000207.0,0,6,6,16,15,9,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
-          "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
-          "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,650,1]"),
-         200),
-        (("[8000207.0,0,6,6,16,15,9,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
-          "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
-          "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,650]"),
-         400),  # one feature missing
-        (("invalid data"),
-         400),  # wrong data form
+        (
+            (f"{get_inference_test_data()}"),
+            200,
+        ),
+        (
+            (f"{get_inference_test_data()[:-1]}"),
+            400,
+        ),  # one feature missing
+        (("invalid data"), 400),  # wrong data form
     ],
 )
-def test_single_prediction(input_data, expected_status_code):
+def test_single_prediction(input_data, expected_status_code, monkeypatch):
+    monkeypatch.setattr(src.models.predict_model, "load_data", mock_load_data)
+    monkeypatch.setattr(src.models.predict_model, "load_model", mock_load_model)
 
     print(len(input_data.split(",")))
     response = client.post(
@@ -57,32 +70,26 @@ def test_single_prediction(input_data, expected_status_code):
 @pytest.mark.parametrize(
     "input_data, expected_status_code",
     [
-        (["[8000207.0,0,6,6,16,15,9,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
-          "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
-          "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,650,1]",
-          "[8000207.0,0,6,6,16,15,9,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
-          "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
-          "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,650,1]"],
-         200),
-        (["[8000207.0,0,6,6,16,15,9,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
-          "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
-          "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,650]",
-          "[8000207.0,0,6,6,16,15,9,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
-          "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
-          "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,650,1]"],
-         400),  # one feature missing
-        (["invalid data"],
-         400),  # wrong data form
+        (
+            [f"{get_inference_test_data()}", f"{get_inference_test_data()}"],
+            200,
+        ),
+        (
+            [f"{get_inference_test_data()[:-1]}", f"{get_inference_test_data()}"],
+            400,
+        ),  # one feature missing
+        (["invalid data"], 400),  # wrong data form
     ],
 )
-def test_batch_prediction(input_data, expected_status_code):
+def test_batch_prediction(input_data, expected_status_code, monkeypatch):
+    monkeypatch.setattr(src.models.predict_model, "load_data", mock_load_data)
+    monkeypatch.setattr(src.models.predict_model, "load_model", mock_load_model)
 
     # print(len(input_data.split(",")))
     response = client.post(
         "/batch_predict",
-        headers={"accept": "application/json",
-                 "Content-Type": "application/json"},
-        data=json.dumps(input_data)
+        headers={"accept": "application/json", "Content-Type": "application/json"},
+        data=json.dumps(input_data),
     )
     print(response.json())
     print(expected_status_code)
