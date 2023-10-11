@@ -14,6 +14,10 @@ COPY src/ src/
 RUN mkdir -p models/
 RUN mkdir -p data/processed/
 
+# remove all files in src/configs/model_configs
+# We want to download the lastest config files from the bucket
+RUN rm -rf src/configs/model_configs/*
+
 # install python packages
 WORKDIR /
 # Install torch without gpu support
