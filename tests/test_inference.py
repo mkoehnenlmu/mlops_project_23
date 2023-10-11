@@ -26,7 +26,7 @@ def test_read_main():
     response = client.get("/")
     assert response.json() == {
         "message": HTTPStatus.OK.phrase,
-        "status-code": "200",
+        "status-code": 200,
     }
 
 
