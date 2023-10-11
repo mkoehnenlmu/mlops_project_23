@@ -457,7 +457,7 @@ By combining these practices, we minimize information loss, maintain experiment 
 >
 > Answer:
 
-- [A pareto-front of our training](figures/pareto_front.png)
+![A pareto-front of our training](figures/pareto_front.png)
 Figure Description:
 
 The figure displays a Pareto front generated during our tuning run with SMAC. It shows a trade-off relationship between two key metrics: model size and 1-F1 measure.
@@ -469,9 +469,6 @@ The figure displays a Pareto front generated during our tuning run with SMAC. It
 Significance:
 
 The Pareto front is a valuable visualization of our hyperparameter tuning as it showcases the trade-offs between model size and classification performance. In this specific figure, you can see that there seem to be three different configurations with different possible achieved F1 scores where model size does not seem to matter. Thus, choosing the smallest model that achieves an F1 of 0.9 is the natural choice.
-
-- [Maybe a loss curve from the model?]()
-- [We need a third plot!!!]()
 
 
 ### Question 15
@@ -589,8 +586,8 @@ All types of VMs were hosted in the `europe-west3-c` zone and were associated wi
 >
 > Answer:
 
-[Bucket Overview](figures/bucket1.png)
-[Model Storage Overview](figures/bucket2.png)
+![Bucket Overview](figures/bucket1.png)
+![Model Storage Overview](figures/bucket2.png)
 
 ### Question 20
 
@@ -599,7 +596,7 @@ All types of VMs were hosted in the `europe-west3-c` zone and were associated wi
 >
 > Answer:
 
-[Our Dockerhub Repository](figures/dockerhub.png)
+![Our Dockerhub Repository](figures/dockerhub.png)
 
 ### Question 21
 
@@ -608,9 +605,9 @@ All types of VMs were hosted in the `europe-west3-c` zone and were associated wi
 >
 > Answer:
 
-[Our Inference Build History](figures/buildinference.png)
+![Our Inference Build History](figures/buildinference.png)
 
-[Our Training Build History](figures/buildtraining.png)
+![Our Training Build History](figures/buildtraining.png)
 
 As already outlined above, we wanted the project to stay as independent of the platform as possible, so we stored the built images in Dockerhub.
 
@@ -685,12 +682,12 @@ Due to time constraints we could not provide a more extensive monitoring for our
 >
 > Answer:
 
-As of now, we've utilized approximately 30€ of our available credits, primarily attributed to Compute Engine, where we are using rather performant machines. The cost can mosly be attributedto instances inadvertently running overnight due to automated deployments. This is a major downside of Compute Engine, since it also costs money when you are not actively using the resources. This is good for training, where we need high performance for a short time, but more inconvenient for inference, at least as long as inference is done on a small scale.
+As of now, we've utilized approximately 30€ of our available credits (the plot is a bit older), primarily attributed to Compute Engine, where we are using rather performant machines. The cost can mosly be attributedto instances inadvertently running overnight due to automated deployments. This is a major downside of Compute Engine, since it also costs money when you are not actively using the resources. This is good for training, where we need high performance for a short time, but more inconvenient for inference, at least as long as inference is done on a small scale.
 However, our financial resources were robust, with over 300€ at our disposal. To ensure not running out of budget, we've implemented budgeting alerts and set cutoffs at 50€ as a precautionary measure.
 
 It's worth noting that the actual cost of operations during periods when we actively required resources amounted to less than 5€ by our estimations.
 
-[Our Cost Overview](figures/costs.png)
+![Our Cost Overview](figures/costs.png)
 
 
 ## Overall discussion of project
@@ -712,7 +709,7 @@ It's worth noting that the actual cost of operations during periods when we acti
 >
 > Answer:
 
-[System Architecture](figures/architecture2.png)
+![System Architecture](figures/architecture2.png)
 
 The architecture primarily revolves around cloud-based infrastructure, focusing on machine learning model development and deployment. The core components and steps in the architecture are:
 
