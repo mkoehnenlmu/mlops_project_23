@@ -695,7 +695,29 @@ It's worth noting that the actual cost of operations during periods when we acti
 >
 > Answer:
 
-To Be Added
+[System Architecture](figures/architecture2.png)
+
+The architecture primarily revolves around cloud-based infrastructure, focusing on machine learning model development and deployment. The core components and steps in the architecture are:
+
+1. **GitHub Repository**: The project's codebase is hosted on GitHub, providing version control and collaboration tools, as well as continuous integration.
+
+2. **Continuous Integration (CI)**: GitHub Actions automates code testing, linting, and the container building and deployment processes, ensuring code quality and efficient development, where we do not have to worry about deploying each small improvement to our code individually.
+
+3. **Docker Images**: Docker containers house the machine learning model, enabling consistency and portability. They are stored and versioned on DockerHub.
+
+
+4. **Google Cloud**
+
+- Compute Engine: VM instances in Google Compute Engine are utilized for both model training and inference. These instances are configured to run Docker containers, encapsulating the model and its dependencies. FastAPI is employed to serve the model as an API, allowing external systems to make HTTP requests for predictions.
+- Data and Model Storage: Google Cloud Storage is used for storing datasets, trained models, and various project artifacts. It provides secure and scalable object storage.
+
+5. **Document Flow**:
+- Data flows from Google Cloud Storage to the Docker containers during training and from external applications to the FastAPI service for inference.
+- Models that result from training are stored in Google Cloud Storage and used in the inference container.
+
+6. **Monitoring**: tbd
+
+This architecture is designed to facilitate efficient and (in the future) scalable model development, training, and deployment. It leverages cloud services and automation to streamline the machine learning operations. Furthermore, it enables maintaining cost control, both through using easy to plan, but flexible enough services and by enabling easy switching of the compute platform, should one service get too expensive.
 
 ### Question 26
 
