@@ -72,7 +72,7 @@ def load_reference_data(
             get_paths()["inference_data_path"],
             get_paths()["inference_bucket"],
         )
-    current_data = pd.read_csv(get_paths()["inference_data_path"])
+    current_data = pd.read_csv(get_paths()["inference_data_path"], index_col=0)
 
     current_data.drop(columns=["time"], inplace=True)
     current_data.columns = reference_data.columns
@@ -122,7 +122,7 @@ def load_test_data():
 @app.get("/monitoring/", response_class=HTMLResponse)
 async def monitoring():
     """Simple get request method that returns a monitoring report."""
-    reference_data, current_data = load_reference_data(column_set=(0, 10))
+    reference_data, current_data = load_reference_data(column_set=(0, 15))
     # get only first 10 columns of reference and current
     data_drift_report = Report(
         metrics=[
