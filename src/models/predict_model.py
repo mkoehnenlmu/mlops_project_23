@@ -109,9 +109,9 @@ def add_to_database(
         bucket = storage_client.get_bucket(get_paths()["inference_bucket"])
         # open the file "database.csv" from the bucket add a new to to the csv, the upload again
         blob = bucket.blob(
-            get_paths()["inference_data_path"].split["/"][1]
+            get_paths()["inference_data_path"].split("/")[1]
             + "/"
-            + get_paths()["inference_data_path"].split["/"][2]
+            + get_paths()["inference_data_path"].split("/")[2]
         )
         blob.download_to_filename(get_paths()["inference_data_path"])
     with open(get_paths()["inference_data_path"], "a") as f:

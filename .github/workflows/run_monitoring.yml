@@ -61,8 +61,8 @@ jobs:
           --service-account=actions-auth@wide-axiom-401015.iam.gserviceaccount.com
           --scopes=https://www.googleapis.com/auth/cloud-platform
           --container-image=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/monitoring:latest
-          --zone=europe-west1-b
-          --machine-type=c2d-highcpu-4
+          --zone=europe-west3-c
+          --machine-type=n2d-standard-2
           --boot-disk-size=50GB
           --container-restart-policy='never'
           --tags=monitoring-server,http-server

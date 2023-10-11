@@ -13,6 +13,7 @@ COPY src/ src/
 # create directory for model and data storage
 RUN mkdir -p models/
 RUN mkdir -p data/processed/
+RUN mkdir -p data/inference/
 
 # remove all files in src/configs/model_configs
 # We want to download the lastest config files from the bucket
