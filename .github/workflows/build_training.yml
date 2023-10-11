@@ -3,12 +3,8 @@
 
 name: "Build and push training container"
 
-# run on push or PR to main branch
-# TODO: Remove PR to main branch once this works
 on:
   push:
-    branches: [ main ]
-  pull_request:
     branches: [ main ]
 
 jobs:
