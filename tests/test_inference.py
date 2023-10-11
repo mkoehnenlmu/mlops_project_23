@@ -1,5 +1,6 @@
 import json
 from http import HTTPStatus
+from typing import List
 
 import pytest
 from fastapi.testclient import TestClient
@@ -22,12 +23,20 @@ def mock_load_data():
     return get_test_data()
 
 
+def mock_add_data(
+    now: str,
+    input_data: List[str],
+    prediction: float,
+    local: bool = False,
+):
+    pass
+
+
 def test_read_main():
     response = client.get("/")
-    assert response.json() == {
-        "message": HTTPStatus.OK.phrase,
-        "status-code": 200,
-    }
+    assert response.json()["message"] == HTTPStatus.OK.phrase
+    assert str(response.json()["status-code"]) == "200"
+    assert list(response.json().keys()) == ["message", "status-code"]
 
 
 @pytest.mark.parametrize(
@@ -47,6 +56,7 @@ def test_read_main():
 def test_single_prediction(input_data, expected_status_code, monkeypatch):
     monkeypatch.setattr(src.models.predict_model, "load_data", mock_load_data)
     monkeypatch.setattr(src.models.predict_model, "load_model", mock_load_model)
+    monkeypatch.setattr(src.models.predict_model, "add_to_database", mock_add_data)
 
     print(len(input_data.split(",")))
     response = client.post(
@@ -85,6 +95,7 @@ def test_single_prediction(input_data, expected_status_code, monkeypatch):
 def test_batch_prediction(input_data, expected_status_code, monkeypatch):
     monkeypatch.setattr(src.models.predict_model, "load_data", mock_load_data)
     monkeypatch.setattr(src.models.predict_model, "load_model", mock_load_model)
+    monkeypatch.setattr(src.models.predict_model, "add_to_database", mock_add_data)
 
     # print(len(input_data.split(",")))
     response = client.post(
