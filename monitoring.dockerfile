@@ -6,7 +6,7 @@ RUN apt-get update && \
     apt clean && rm -rf /var/lib/apt/lists/*
 
 # copy inference code
-COPY requirements_inference.txt /requirements.txt
+COPY requirements_monitoring.txt /requirements.txt
 COPY setup.py setup.py
 COPY src/ src/
 
