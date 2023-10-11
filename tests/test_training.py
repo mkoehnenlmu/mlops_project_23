@@ -1,17 +1,15 @@
 import os
 
-import pytest
 import torch
 
-from src.data.load_data import load_data
 from src.models.model import LightningModel
-from src.models.train import train
-from tests.utilities import get_hparams, get_normalized_test_data, get_paths
+from src.models.train import train, save_model
+from tests.utilities import get_test_hparams, get_normalized_test_data, get_paths
 
 
 def test_model_created() -> None:
     x, y = get_normalized_test_data()
-    hparams = get_hparams()
+    hparams = get_test_hparams()
     # Call the train function with sample data and hyperparameters
     model = train(x, y, hparams)
 
@@ -22,7 +20,7 @@ def test_model_created() -> None:
 
 def test_model_hyperparameters() -> None:
     x, y = get_normalized_test_data()
-    hparams = get_hparams()
+    hparams = get_test_hparams()
     # Call the train function with sample data and hyperparameters
     model = train(x, y, hparams)
 
@@ -47,7 +45,7 @@ def test_model_hyperparameters() -> None:
 
 def test_model_logs() -> None:
     x, y = get_normalized_test_data()
-    hparams = get_hparams()
+    hparams = get_test_hparams()
 
     # Call the train function with sample data and hyperparameters
     model = train(x, y, hparams)
@@ -56,17 +54,14 @@ def test_model_logs() -> None:
     assert model.logger.log_dir is not None, "Train loss has not been logged."
 
 
-@pytest.mark.skipif(not os.path.exists(get_paths()["training_data_path"]),
-                    reason="Data files not found")
 def test_model_saved():
     """test that model is saved after training in src.models.train_model.py"""
-    data = load_data(get_paths()["training_data_path"])
-    sample_data = data[:5]
-    hparams = get_hparams()
+    x, y = get_normalized_test_data()
+    hparams = get_test_hparams()
 
     # Call the train function with sample data and hyperparameters
-    train(sample_data, hparams)
-
+    model = train(x, y, hparams)
+    save_model(model, get_paths()["model_path"], get_paths()["training_bucket"], push=False)
     # Assert that the model is saved
     assert os.path.exists("./models/model.pth"), "Model not saved."
 
