@@ -50,4 +50,4 @@ jobs:
           --machine-type=c2d-highcpu-8
           --boot-disk-size=50GB
           --container-restart-policy='never'
-          --tags=inference-server,http-server
+          --tags=training-server
