@@ -73,7 +73,7 @@ async def process_prediction(
         add_to_database,
         now,
         input_data,
-        prediction.item(),
+        prediction,
     )
     return prediction
 
@@ -163,7 +163,7 @@ async def batch_predict(
         for data in input_data:
             prediction = await process_prediction(data, model, background_tasks)
             # Return the inferred values "delay"
-            predictions.append({"delay": prediction.item()})
+            predictions.append({"delay": prediction})
         response = {
             "input": input_data,
             "message": HTTPStatus.OK.phrase,
