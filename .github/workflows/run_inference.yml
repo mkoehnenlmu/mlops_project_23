@@ -5,6 +5,9 @@ name: "Run inference container in google cloud compute engine"
 
 # Run when build_inference has run successfully
 on:
+  push:
+    branches:
+      - public_inference
   workflow_run:
     workflows: ["Build and push inference container"]
     types:
