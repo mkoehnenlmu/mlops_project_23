@@ -3,48 +3,11 @@ layout: default
 nav_exclude: true
 ---
 
-# Exam template for 02476 Machine Learning Operations
-
-This is the report template for the exam. Please only remove the text formatted as with three dashes in front and behind
-like:
-
-```--- question 1 fill here ---```
-
-where you instead should add your answers. Any other changes may have unwanted consequences when your report is auto
-generated in the end of the course. For questions where you are asked to include images, start by adding the image to
-the `figures` subfolder (please only use `.png`, `.jpg` or `.jpeg`) and then add the following code in your answer:
-
-```markdown
-![my_image](figures/<image>.<extension>)
-```
-
-In addition to this markdown file, we also provide the `report.py` script that provides two utility functions:
-
-Running:
-
-```bash
-python report.py html
-```
-
-will generate an `.html` page of your report. After deadline for answering this template, we will autoscrape
-everything in this `reports` folder and then use this utility to generate an `.html` page that will be your serve
-as your final handin.
-
-Running
-
-```bash
-python report.py check
-```
-
-will check your answers in this template against the constrains listed for each question e.g. is your answer too
-short, too long, have you included an image when asked to.
-
-For both functions to work it is important that you do not rename anything. The script have two dependencies that can
-be installed with `pip install click markdown`.
+# Machine Learning Operations: Flight Delay Predictinons
 
 ## Overall project checklist
 
-The checklist is *exhaustic* which means that it includes everything that you could possible do on the project in
+The checklist is *exhaustive* which means that it includes everything that you could possible do on the project in
 relation the curricilum in this course. Therefore, we do not expect at all that you have checked of all boxes at the
 end of the project.
 
@@ -53,8 +16,7 @@ end of the project.
 
 - [x] Make sure that all team members have write access to the github repository
 
-- [ ] Create a dedicated environment for you project to keep track of your packages
-    -> add the conda exported file to github @maya
+- [x] Create a dedicated environment for you project to keep track of your packages
 
 - [x] Create the initial file structure using cookiecutter
 
@@ -82,9 +44,11 @@ end of the project.
 
 - [ ] When you have something that works somewhat, remember at some point to to some profiling and see if you can optimize your code
 
-    - profiling & optimization once model is optimized?
+    - profiling was mostly sensible to do for the size of our containers. The model is small enough to not require any speed improvements
 
-- [ ] Use Weights & Biases to log training progress and other important metrics/artifacts in your code. Additionally, consider running a hyperparameter optimization sweep.
+- [x] Use Weights & Biases to log training progress and other important metrics/artifacts in your code. Additionally, consider running a hyperparameter optimization sweep.
+
+    - We tried out Weights & Biases and did some tensorboard logging. Ultimatetively, we used SMAC to optimize our model since it was feasible.
 
 - [x] Use Pytorch-lightning (if applicable) to reduce the amount of boilerplate in your code
 
@@ -94,39 +58,36 @@ end of the project.
 
 - [x] Write unit tests related to model construction and or model training
 
-- [x] Calculate the coverage. = 91% :)
+- [x] Calculate the coverage = 76%
 
 - [x] Get some continuous integration running on the github repository
 
 - [x] Create a data storage in GCP Bucket for you data and preferable link this with your data version control setup
 
-    - link this with your data version control setup: not useful in our case
+    - link this with your data version control setup: not useful in our case, see below
 
 - [x] Create a trigger workflow for automatically building your docker images
 
-    - trigger on push to main
+    - triggered on push to main
 
 - [x] Get your model training in GCP using either the Engine or Vertex AI
 
     - Training and tuning is done in compute engine
 
-- [ ] Create a FastAPI application that can do inference using your model
+- [x] Create a FastAPI application that can do inference using your model
 
-- [ ] If applicable, consider  the model locally using torchserve
+- [ ] If applicable, consider the model locally using torchserve
 
-    - not useful
+    - not useful, deployed in cloud
 
-- [ ] Deploy your model in GCP using either Functions or Run as the backend
+- [x] Deploy your model in GCP using either Functions or Run as the backend
 
-    - check whether useful, because model needs to loaded every time
-
-    - have everything in engine? Or use maybe vertex
+    - We deploy in compute engine to avoid loading model every time
 
 ## Week 3
 
-- [ ] Check how robust your model is towards data drifting
-
-    - part of fridays video, deploy db??
+- [x] Check how robust your model is towards data drifting
+    - We monitor data drifts of new incoming data, don't check model robustness
 
 - [ ] Setup monitoring for the system telemetry of your deployed model
 
@@ -144,9 +105,11 @@ end of the project.
 
 ##   Addtional
 
-- [ ] Revisit your initial project description. Did the project turn out as you wanted?
+- [x] Revisit your initial project description. Did the project turn out as you wanted?
 
-- [ ] Make sure all group members have a understanding about all parts of the project
+    - We think we fulfilled all main goals we set out to achieve in the beginning.
+
+- [x] Make sure all group members have an understanding about all parts of the project
 
 - [x] Uploaded all your code to github
 
@@ -154,7 +117,7 @@ end of the project.
 ## Group information
 
 ### Question 1
-> **Enter the group number you signed up on <learn.inside.dtu.dk>**
+> **Enter the group number you signed up on Moodle**
 >
 > Answer:
 
@@ -191,7 +154,7 @@ For continuous integration and continuous deployment (CI/CD), we relied on GitHu
 
 ## Coding environment
 
-> In the following section we are interested in learning more about you local development environment.
+> In the following section we are interested in learning more about your local development environment.
 
 ### Question 4
 
@@ -259,7 +222,7 @@ While we did not use every folder provided by the cookiecutter template, we foun
 
 9. **.github (Used)**: We added a ".github" folder to leverage GitHub Actions for continuous integration and continuous deployment (CI/CD). This folder contained workflows for automating various project tasks.
 
-10. **.dvc (Used)**: We also included a ".dvc" folder to integrate Data Version Control (DVC) into our project. However data versioning was done in the cloud once integrated.
+10. **.dvc (Used at start)**: We also included a ".dvc" folder to integrate Data Version Control (DVC) into our project. However data versioning was done in the cloud once integrated.
 
 We tailored the cookiecutter template to our project's specific needs, utilizing the folders that were most relevant to our ML Ops workflow while omitting those that did not align with our development approach.
 
@@ -295,9 +258,8 @@ Although making sure all linters don't report any errors can be bothersome, espe
 >
 > Answer:
 
-We implemented 18 tests, that focus on the core parts of a machine learning application. This are namely the data, the model, it's training and inference.
-For data tests concern shape checks and preprocessing, the model is also tested w.r.t. shapes of in- and output. For training we ensure correctness of basic functionalities like
-model creation, hyperparameters and logging. Inference is one of the most vital but also error prone part of our application as it is exposed to day to day usage. Therefor it has the largest share of tests, that ensure basic availability of the application as well as correct responses to different user inputs.
+We implemented 18 tests that focus on the core parts of a machine learning application. This are namely the data, the model, its training and inference.
+Four data tests concern shape checks and preprocessing, the model is also tested w.r.t. shapes of in- and output. For training we ensure correctness of basic functionalities like model creation, hyperparameters and logging. Inference is one of the most vital but also error prone part of our application as it is exposed to day to day usage. Therefore it has the largest share of tests, that ensure basic availability of the application as well as correct responses to different user inputs.
 
 ### Question 8
 
@@ -314,7 +276,7 @@ model creation, hyperparameters and logging. Inference is one of the most vital 
 
 Our code coverage stands at 76%, indicating that our unit tests cover a substantial portion of our codebase. Main misses in the code coverage concern the training of the model which is hard to reflect due to long runtimes and a encapsulation in hyperparamter tuning, while the best covered part is inference which matches the focus of our tests descibred above. While a high code coverage percentage is an encouraging sign, it doesn't guarantee that the code is entirely error-free. Code coverage primarily measures which parts of the code have been executed during testing, but it doesn't assess the quality of the tests themselves.
 
-Even with near 100% code coverage, we cannot ensure error free code because it's possible that certain edge cases or complex scenarios may not be adequately tested. Additionally, the quality of the tests matters; poorly designed or insufficient tests may not catch all potential issues.
+Even with a good code coverage, we cannot ensure error free code because it's possible that certain edge cases or complex scenarios may not be adequately tested. Additionally, the quality of the tests matters; poorly designed or insufficient tests may not catch all potential issues.
 
 Therefore, while high code coverage is essential, it should be complemented with thorough testing strategies, code reviews, and other quality assurance measures to enhance confidence in the code's reliability and correctness.
 
@@ -458,7 +420,6 @@ By combining these practices, we minimize information loss, maintain experiment 
 > Answer:
 
 ![A pareto-front of our training](figures/pareto_front.png)
-Figure Description:
 
 The figure displays a Pareto front generated during our tuning run with SMAC. It shows a trade-off relationship between two key metrics: model size and 1-F1 measure.
 
@@ -469,6 +430,14 @@ The figure displays a Pareto front generated during our tuning run with SMAC. It
 Significance:
 
 The Pareto front is a valuable visualization of our hyperparameter tuning as it showcases the trade-offs between model size and classification performance. In this specific figure, you can see that there seem to be three different configurations with different possible achieved F1 scores where model size does not seem to matter. Thus, choosing the smallest model that achieves an F1 of 0.9 is the natural choice.
+
+![WandB](figures/wandb.jpg)
+
+We also played around a bit with Weights & Biases to log the training of the model, as you can see above.
+
+![Tensorboard](figures/tensorboard.png)
+
+In addition, we also tried out logging the model train and validation loss locally using tensorboard. This shows nicely how both the training loss while training and a validation loss of a holdout dataset go down with each epoch of training. Here, we artificially increased the epochs so that this is easier to see. The tuning most often found that less epochs seemed to produce better out-of-bag results.
 
 
 ### Question 15
@@ -575,7 +544,7 @@ Google Cloud Compute Engine was pivotal in our project for its scalable and effi
 - Our inference VMs were configured with a similar setup but with fewer CPU cores, using the `c2d-highcpu-4` machine type. This was suitable for serving model predictions with lower computational demands.
 
 **Monitoring VM**:
-- The monitoring VMs were configured as the inference VM as they have similar computational demands.
+- The monitoring VMs were configured with less computational power as `n2d-standard-2` machines, since they require less performance and thus costs need to stay low. Another good option for the monitoring would have been a cloud function that only runs on request.
 
 All types of VMs were hosted in the `europe-west3-c` zone and were associated with specific service accounts, granting them necessary permissions for cloud platform access. Compute Engine ensured our project had the computing power required for training and serving machine learning models efficiently in a scalable and cloud-native manner.
 
@@ -613,7 +582,7 @@ As already outlined above, we wanted the project to stay as independent of the p
 
 ### Question 22
 
-> **Did you manage to deploy your model, either in locally or cloud? If not, describe why. If yes, describe how and**
+> **Did you manage to deploy your model, either locally or cloud? If not, describe why. If yes, describe how and**
 > **preferably how you invoke your deployed service?**
 >
 > Answer length: 100-200 words.
@@ -637,10 +606,9 @@ We successfully deployed our machine learning model in the cloud, specifically o
 
 To post a single data point for prediction from the command line:
 `curl -X 'POST' \
-  'http://<ENDPOINT_IP>/predict?input_data=%22%5B8000207.0%2C0%2C6%2C6%2C16%2C15%2C9 [ more data ] C1%2C650%2C1%5D%22' \
-  -H 'accept: application/json' \
-  -d ''`
-Response looks like the following:
+  'http://<ENDPOINT_IP>/predict?input_data=%22%5B8000207.0%2C0%2C6%2C6%2C16%2C15%2C9 [ more data ] C1%2C650%2C1%5D%22'`
+
+The response looks like the following:
 `{"input":"[ input data ]","message":"OK","status-code":200,"prediction":[{"delay":0.130349263548851}]}`
 
 By deploying our model in the cloud with Docker and FastAPI, we created an accessible inference service with easy ways for increasing the performance short term and the option to make it fully scalable in the future.
@@ -682,10 +650,10 @@ Due to time constraints we could not provide a more extensive monitoring for our
 >
 > Answer:
 
-As of now, we've utilized approximately 30€ of our available credits (the plot is a bit older), primarily attributed to Compute Engine, where we are using rather performant machines. The cost can mosly be attributedto instances inadvertently running overnight due to automated deployments. This is a major downside of Compute Engine, since it also costs money when you are not actively using the resources. This is good for training, where we need high performance for a short time, but more inconvenient for inference, at least as long as inference is done on a small scale.
-However, our financial resources were robust, with over 300€ at our disposal. To ensure not running out of budget, we've implemented budgeting alerts and set cutoffs at 50€ as a precautionary measure.
+As of now, we've utilized approximately 38€ of our available credits, primarily attributed to Compute Engine, where we are using rather performant machines. The cost can mosly be attributedto instances inadvertently running overnight due to automated deployments. This is a major downside of Compute Engine, since it also costs money when you are not actively using the resources. This is good for training, where we need high performance for a short time, but more inconvenient for inference, at least as long as inference is done on a small scale.
+However, our financial resources were robust, with 379€ at our disposal. To ensure not running out of budget, we've implemented budgeting alerts and set cutoffs at 50€ as a precautionary measure.
 
-It's worth noting that the actual cost of operations during periods when we actively required resources amounted to less than 5€ by our estimations.
+It's worth noting that the actual cost of operations during periods when we actively required resources amounted to less than 10€ by our estimations.
 
 ![Our Cost Overview](figures/costs.png)
 
