@@ -12,12 +12,13 @@ from torch import tensor
 from src.models.model import LightningModel
 
 from hydra import compose, initialize
+
 # from omegaconf import OmegaConf
 
 initialize(config_path="../configs/")
 cfg = compose(config_name="config")
 
-# load the paths into a global variablepaths
+# load the paths into a global variable paths
 global paths
 paths = cfg.paths
 global add_configs
@@ -57,11 +58,11 @@ def load_data(
             bucket_name,
         )
 
-        # unzip the file
-        with zipfile.ZipFile(data_path, "r") as zip_ref:
-            zip_ref.extractall(
-                data_path.split("/")[0] + "/" + data_path.split("/")[1] + "/"
-            )
+    data_dir = data_path.split("/")[0] + "/" + data_path.split("/")[1] + "/"
+
+    # unzip all files in data_dir
+    with zipfile.ZipFile(data_path.split(".")[0] + ".zip", "r") as zip_ref:
+        zip_ref.extractall(data_dir)
 
     return pd.read_csv(data_path)
 
@@ -99,7 +100,7 @@ def download_hparams_from_gcs(
 
 def get_hparams():
     if not os.path.exists(paths.model_config_path):
-        download_model_from_gcs()
+        download_hparams_from_gcs()
     with open(paths.model_config_path, "r") as json_file:
         hparams_str = json_file.read()
     hparams = json.loads(hparams_str)
@@ -124,15 +125,29 @@ def download_file_from_gcs(
     # will be automatically available
     storage_client = storage.Client()
     bucket = storage_client.get_bucket(bucket_name)
-    blob = bucket.blob(
-        gcs_data_path.split("/")[1] + gcs_data_path.split("/")[2]
-    )  # "processed/train_sample.zip"
+    blob = bucket.blob(gcs_data_path)  # "processed/train_sample.zip"
 
     # store the blob in training data path
-    blob.download_to_filename(gcs_data_path)
+    blob.download_to_filename(local_data_path)
 
 
-def normalize_data(
+def create_normalized_target(
+    data: pd.DataFrame, dep_var: str = "DEP_DEL15"
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    """
+    Normalize input data and split it into features (x) and targets (y).
+
+    Args:
+        data (pd.DataFrame): Input data in a DataFrame format.
+
+    Returns:
+        Tuple[torch.Tensor, torch.Tensor]: Tuple containing normalized features (x) and targets (y) as torch Tensors.
+    """
+    x, y = separate_target(data, dep_var)
+    return normalize_data(x), y
+
+
+def separate_target(
     data: pd.DataFrame, dep_var: str = "DEP_DEL15"
 ) -> Tuple[torch.Tensor, torch.Tensor]:
     """
@@ -145,13 +160,27 @@ def normalize_data(
         Tuple[torch.Tensor, torch.Tensor]: Tuple containing normalized features (x) and targets (y) as torch Tensors.
     """
     # convert data to tensors, where all columns in the dataframe
-    # except TAc are inputs and TAc is the target
+    # except dependent var are input features
     x = tensor(data.drop(columns=[dep_var]).values).float()
     y = tensor(data[dep_var].values).float()
+
+    return x, y
+
+
+def normalize_data(x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+    """
+    Normalize input data.
+
+    Args:
+        data (torch.Tensor): Input data in a torch tensor format.
+
+    Returns:
+        Tuple[torch.Tensor, torch.Tensor]: Tuple containing normalized features (x) and targets (y) as torch Tensors.
+    """
 
     # for every column in the input values, apply a min max normalization
     # that doesn't set any values to NaN
     for i in range(x.shape[1]):
         x[:, i] = (x[:, i] - x[:, i].min()) / (x[:, i].max() - x[:, i].min() + 1e-6)
 
-    return x, y
+    return x

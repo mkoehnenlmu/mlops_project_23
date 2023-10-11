@@ -4,7 +4,13 @@ from typing import Any, Dict, List, Union
 import torch
 from fastapi import BackgroundTasks, FastAPI, HTTPException
 
-from src.data.load_data import get_hparams, load_model
+from src.data.load_data import (
+    get_hparams,
+    load_model,
+    normalize_data,
+    load_data,
+    separate_target,
+)
 from src.models.model import LightningModel
 
 app = FastAPI()
@@ -31,9 +37,21 @@ async def model_predict(model: LightningModel, input_data: str) -> torch.Tensor:
 
     input_tensor = torch.tensor(input_data, dtype=torch.float32)
     input_tensor = input_tensor.view(1, -1)
-    prediction = model.forward(input_tensor)
 
-    return prediction
+    # Normalize the input data with the existing training data
+    train_data = load_data()
+    x, y = separate_target(train_data)
+    # add input tensor at the bottom of x
+    x = torch.cat((x, input_tensor), 0)
+    norm_x = normalize_data(x)
+
+    # get the last row of the normalized data
+    norm_tensor = norm_x[-1, :]
+
+    input = norm_tensor.view(1, -1)
+    prediction = model.forward(input)
+
+    return prediction.item()
 
 
 def check_valid_input(input_data: str) -> bool:

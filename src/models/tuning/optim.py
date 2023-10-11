@@ -3,18 +3,22 @@ import logging
 from pathlib import Path
 from typing import Any, Dict, Union
 
-import hydra
 import numpy as np
 from ConfigSpace import Configuration
-from smac.facade.hyperparameter_optimization_facade import \
-    HyperparameterOptimizationFacade as HPOFacade
+from smac.facade.hyperparameter_optimization_facade import (
+    HyperparameterOptimizationFacade as HPOFacade,
+)
 from smac.multi_objective.parego import ParEGO
 from smac.scenario import Scenario
 
-from src.data.load_data import load_data
-from src.models.train_model import evaluate_model, save_model, train
+from src.data.load_data import load_data, create_normalized_target
+from src.models.train import evaluate_model, save_model, train
 from src.models.tuning.configspace import configspace_new
 from src.models.tuning.plot_pareto import plot_pareto
+
+from hydra import compose
+
+cfg = compose(config_name="config")
 
 # Global logger
 log_fmt = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -42,15 +46,17 @@ def evaluate_config(
     train_data = data.sample(frac=0.8, random_state=42)
     test_data = data.drop(train_data.index)
 
-    model = train(train_data, params)
+    x, y = create_normalized_target(train_data)
+
+    model = train(x, y, params)
 
     accuracy, precision, recall, f1, zero_one_loss = evaluate_model(model, test_data)
 
-    print("Loss (F1): " + str(f1.item()))
+    print("Loss (F1): " + str(f1))
 
     # SMAC minimizes, so return 1-F1 score
     return {
-        "loss": 1 - f1.item() if not np.isnan(f1.item()) else 1,
+        "loss": 1 - f1 if not np.isnan(f1) else 1,
         "size": np.log10(sum(p.numel() for p in model.parameters())),
     }
 
@@ -76,7 +82,7 @@ def optimize_configuration(cfg) -> Dict[str, Any]:
         objectives=["loss", "size"],  # multi objective optim
         n_trials=cfg.tuning.num_configs,
         walltime_limit=3600,  # max total time
-        n_workers=4,
+        n_workers=cfg.tuning.n_workers,  # max parallel workers
         output_directory=Path("./models/optimizations/"),
     )
 
@@ -131,7 +137,7 @@ def save_config(hparams: Dict[str, Any], model_config_path: str) -> None:
     with open(model_config_path, "w") as json_file:
         json.dump(hparams, json_file, indent=4)
     blob = bucket.blob(
-        model_config_path.split("/")[1] + model_config_path.split("/")[2]
+        model_config_path.split("/")[2] + "/" + model_config_path.split("/")[3]
     )
     blob.upload_from_filename(model_config_path)
 
@@ -148,17 +154,20 @@ def train_optimal_model(cfg, hparams, save=True) -> None:
     Returns:
         None
     """
-    # data = load_data(cfg.paths.training_data_path, cfg.paths.training_bucket)
+    global data
+    if data is None:
+        data = load_data(cfg.paths.training_data_path, cfg.paths.training_bucket)
 
-    model = train(data, dict(hparams))
+    x, y = create_normalized_target(data)
+    model = train(x, y, dict(hparams))
 
     if save:
         save_config(model.hyperparams, cfg.paths.model_config_path)
-        save_model(model, push=True)
+        save_model(model, cfg.paths.model_path, cfg.paths.training_bucket, push=True)
 
 
-@hydra.main(config_path="../../configs/", config_name="config.yaml", version_base="1.2")
-def run_optim(cfg) -> None:
+# @hydra.main(config_path="../../configs/", config_name="config.yaml", version_base="1.2")
+def run_optim(cfg, save: bool = True) -> None:
     """
     Main function to run hyperparameter optimization.
 
@@ -169,8 +178,8 @@ def run_optim(cfg) -> None:
         None
     """
     optimal_params = optimize_configuration(cfg)
-    train_optimal_model(cfg, optimal_params[0], True)
+    train_optimal_model(cfg, optimal_params[0], save)
 
 
 if __name__ == "__main__":
-    run_optim()
+    run_optim(cfg, save=True)

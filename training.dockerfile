@@ -27,4 +27,4 @@ RUN pip3 install torch --index-url https://download.pytorch.org/whl/cpu
 RUN pip3 install --no-cache-dir -r /requirements.txt
 
 # download data, run training and push the model
-CMD ["python3", "src/models/train_model.py"]
+CMD ["python3", "src/models/tuning/optim.py"]
