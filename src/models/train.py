@@ -103,7 +103,7 @@ def train(x: torch.Tensor, y: torch.Tensor, hparams: Dict[str, Any]) -> Lightnin
         gradient_clip_val=0.5,
         limit_train_batches=30,
         limit_val_batches=0,
-        logger=False,
+        logger=True,
         callbacks=[checkpoint_callback],
         accelerator=hparams["device"],
         num_sanity_val_steps=0,
