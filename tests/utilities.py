@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Tuple
 import pandas as pd
 import torch
 
-from src.data.load_data import get_hparams, get_paths, get_additional_configs
+from src.data.load_data import get_additional_configs, get_hparams, get_paths
 
 
 def get_test_paths() -> Dict[str, Any]:

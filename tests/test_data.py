@@ -3,7 +3,7 @@ from typing import List
 import pandas as pd
 import pytest
 
-from src.data.load_data import load_data, create_normalized_target
+from src.data.load_data import create_normalized_target, load_data
 from tests.utilities import get_test_data, get_test_hparams, get_test_paths
 
 

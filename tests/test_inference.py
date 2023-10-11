@@ -1,12 +1,13 @@
-from fastapi.testclient import TestClient
-from http import HTTPStatus
-from src.models.predict_model import app
-from src.models.model import LightningModel
-import src.models.predict_model
-from tests.utilities import get_hparams, get_test_data, get_inference_test_data
-import pytest
 import json
+from http import HTTPStatus
 
+import pytest
+from fastapi.testclient import TestClient
+
+import src.models.predict_model
+from src.models.model import LightningModel
+from src.models.predict_model import app
+from tests.utilities import get_hparams, get_inference_test_data, get_test_data
 
 client = TestClient(app)
 

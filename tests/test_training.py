@@ -1,8 +1,12 @@
+import os
+
+import pytest
 import torch
 
+from src.data.load_data import load_data
 from src.models.model import LightningModel
 from src.models.train import train
-from tests.utilities import get_hparams, get_normalized_test_data
+from tests.utilities import get_hparams, get_normalized_test_data, get_paths
 
 
 def test_model_created() -> None:
