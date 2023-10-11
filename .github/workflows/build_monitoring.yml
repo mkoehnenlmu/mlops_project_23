@@ -6,8 +6,6 @@ name: "Build and push monitoring container"
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
   build:

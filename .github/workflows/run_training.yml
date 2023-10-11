@@ -3,6 +3,7 @@
 
 name: "Run training container in google cloud compute engine"
 
+# Run when build_training has run successfully
 on:
   workflow_run:
     workflows: [Build and push training container]
