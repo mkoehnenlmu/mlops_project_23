@@ -5,6 +5,9 @@ name: "Run inference container in google cloud compute engine"
 
 # Run when build_inference has run successfully
 on:
+  push:
+      branches:
+        - 17-model-monitoring
   workflow_run:
     workflows: ["Build and push inference container"]
     types:
@@ -36,7 +39,6 @@ jobs:
           project_id: 'wide-axiom-401015'
       - name: 'Use gcloud CLI'
         run: 'gcloud info'
-      # define a variable that contains whether the instance exists
       - name: 'Check if inference instance exists'
         id: 'check_if_inference_exists'
         run: |

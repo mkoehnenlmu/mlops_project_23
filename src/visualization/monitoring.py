@@ -25,7 +25,12 @@ from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 
 # from enum import Enum
-from src.data.load_data import get_additional_configs, get_paths, load_data, download_file_from_gcs
+from src.data.load_data import (
+    get_additional_configs,
+    get_paths,
+    load_data,
+    download_file_from_gcs,
+)
 from src.models.model import LightningModel
 from src.models.predict_model import load_model
 
@@ -45,7 +50,10 @@ def root():
     return response
 
 
-def load_reference_data(column_set: tuple = None, sample_size: int = 1000,):
+def load_reference_data(
+    column_set: tuple = None,
+    sample_size: int = 1000,
+):
     reference_data = load_data(n_rows=10000)
     # sample 1000 rows from reference data
     reference_data = reference_data.sample(sample_size)
@@ -57,15 +65,21 @@ def load_reference_data(column_set: tuple = None, sample_size: int = 1000,):
     )
 
     if not os.path.exists(get_paths()["inference_data_path"]):
-        download_file_from_gcs(get_paths()["inference_data_path"].split("/")[1]
-                               + "/"
-                               + get_paths()["inference_data_path"].split("/")[2],
-                               get_paths()["inference_data_path"],
-                               get_paths()["inference_bucket"])
+        download_file_from_gcs(
+            get_paths()["inference_data_path"].split("/")[1]
+            + "/"
+            + get_paths()["inference_data_path"].split("/")[2],
+            get_paths()["inference_data_path"],
+            get_paths()["inference_bucket"],
+        )
     current_data = pd.read_csv(get_paths()["inference_data_path"])
 
     current_data.drop(columns=["time"], inplace=True)
     current_data.columns = reference_data.columns
+
+    # delete file after loading, so that we always calculate the latest
+    # drift when calling the monitoring endpoint
+    os.remove(get_paths()["inference_data_path"])
 
     # convert type of columns of current_data to the same type as reference_data if not nan
     for col in current_data.columns:
@@ -75,7 +89,10 @@ def load_reference_data(column_set: tuple = None, sample_size: int = 1000,):
             print(f"problem with dtype of col {col}")
 
     if column_set:
-        return reference_data.iloc[:, column_set[0]:column_set[1]], current_data.iloc[:, column_set[0]:column_set[1]]
+        return (
+            reference_data.iloc[:, column_set[0]:column_set[1]],
+            current_data.iloc[:, column_set[0]:column_set[1]],
+        )
     else:
         return reference_data, current_data
 
