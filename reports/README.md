@@ -457,7 +457,7 @@ By combining these practices, we minimize information loss, maintain experiment 
 >
 > Answer:
 
-- [A pareto-front of our training](figures/pareto.png)
+- [A pareto-front of our training](figures/pareto_front.png)
 Figure Description:
 
 The figure displays a Pareto front generated during our tuning run with SMAC. It shows a trade-off relationship between two key metrics: model size and 1-F1 measure.
