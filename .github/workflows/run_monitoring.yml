@@ -5,6 +5,8 @@ name: "Run monitoring in google cloud compute engine"
 
 # Run when build_monitoring has run successfully
 on:
+  pull_request:
+    branches: [ main ]
   workflow_run:
     workflows: [Build and push monitoring container]
     types:
@@ -46,11 +48,12 @@ jobs:
           fi
       - name: 'If exists, update monitoring container in compute engine'
         if: steps.check_if_monitoring_exists.outputs.exists == 'true'
-        run: gcloud compute instances update-container monitoring \
-            --container-image docker.io/${{ secrets.DOCKERHUB_USERNAME }}/monitoring:latest
+        run: >
+          gcloud compute instances
+          update-container monitoring
+          --container-image docker.io/${{ secrets.DOCKERHUB_USERNAME }}/monitoring:latest
       - name: 'If not exists, run monitoring container in new compute engine'
         if: steps.check_if_monitoring_exists.outputs.exists == 'false'
-      - name: 'Run monitoring container in compute engine'
         run: >
           gcloud compute instances
           create-with-container
