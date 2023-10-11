@@ -100,7 +100,7 @@ def download_hparams_from_gcs(
 
 def get_hparams():
     if not os.path.exists(paths.model_config_path):
-        download_model_from_gcs()
+        download_hparams_from_gcs()
     with open(paths.model_config_path, "r") as json_file:
         hparams_str = json_file.read()
     hparams = json.loads(hparams_str)

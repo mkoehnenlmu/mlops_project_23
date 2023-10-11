@@ -21,3 +21,4 @@ paths:
   model_config_path: 'src/configs/model_configs/hyperparams.json'
 tuning:
   num_configs: 250
+  n_workers: 6
