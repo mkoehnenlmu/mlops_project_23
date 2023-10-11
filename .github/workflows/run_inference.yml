@@ -5,9 +5,6 @@ name: "Run inference container in google cloud compute engine"
 
 # Run when build_inference has run successfully
 on:
-  push:
-    branches:
-      - public_inference
   workflow_run:
     workflows: ["Build and push inference container"]
     types:
@@ -54,7 +51,7 @@ jobs:
           --machine-type=c2d-highcpu-4
           --boot-disk-size=50GB
           --container-restart-policy='never'
-          --tags=[inference-server, http-server]
+          --tags=inference-server,http-server
       - name: "Delete old firewall rules"
         run: >
           gcloud compute firewall-rules
@@ -65,7 +62,7 @@ jobs:
           gcloud compute firewall-rules
           create allow-http
           --allow tcp:80
-          --target-tags [inference-server, http-server]
+          --target-tags inference-server,http-server
           --description "Allow port 80 access to http-server"
           --direction INGRESS
           --priority 1000
