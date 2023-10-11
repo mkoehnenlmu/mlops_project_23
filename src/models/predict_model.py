@@ -9,6 +9,7 @@ from fastapi import BackgroundTasks, FastAPI, HTTPException
 from google.cloud import storage
 
 from src.data.load_data import (
+    get_paths,
     get_hparams,
     load_model,
     normalize_data,
