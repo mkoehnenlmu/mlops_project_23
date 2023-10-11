@@ -56,6 +56,11 @@ class LightningModel(pl.LightningModule):
             dataset=data, batch_size=self.hyperparams["batch_size"], shuffle=True
         )
 
+    def val_dataloader(self, data: Dataset) -> DataLoader:
+        return DataLoader(
+            dataset=data, batch_size=self.hyperparams["batch_size"], shuffle=True
+        )
+
     def configure_optimizers(self) -> optim.Optimizer:
         if self.hyperparams["optimizer"] == "Adam":
             return optim.Adam(self.parameters(), lr=self.hyperparams["lr"])
@@ -87,4 +92,13 @@ class LightningModel(pl.LightningModule):
         loss = self.loss(y_hat, y.unsqueeze(1))
         self.log("train_loss", loss)
 
+        return loss
+
+    def validation_step(
+        self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx
+    ) -> Dict[str, torch.Tensor]:
+        x, y = batch
+        y_hat = self.forward(x)
+        loss = self.loss(y_hat, y.unsqueeze(1))
+        self.log("val_loss", loss)
         return loss

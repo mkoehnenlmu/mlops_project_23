@@ -10,7 +10,13 @@ from src.models.model import LightningModel
 
 
 # trains the lightning model with the data
-def train(x: torch.Tensor, y: torch.Tensor, hparams: Dict[str, Any]) -> LightningModel:
+def train(
+    x: torch.Tensor,
+    y: torch.Tensor,
+    x_train: torch.Tensor,
+    y_train: torch.Tensor,
+    hparams: Dict[str, Any],
+) -> LightningModel:
     """
     Train a LightningModel using the given data and hyperparameters.
 
@@ -42,13 +48,22 @@ def train(x: torch.Tensor, y: torch.Tensor, hparams: Dict[str, Any]) -> Lightnin
         gradient_clip_val=0.5,
         limit_train_batches=30,
         limit_val_batches=10,
-        logger=True,
+        logger=pl.loggers.TensorBoardLogger(
+            save_dir="logs/",
+            name="lightning_logs",
+            version="0",
+        ),
         callbacks=[checkpoint_callback],
         accelerator=hparams["device"],
     )
-    # train the model
 
-    trainer.fit(model, model.train_dataloader(list(zip(x, y.float()))))
+    trainer.logger.log_hyperparams(hparams)
+
+    trainer.fit(
+        model=model,
+        train_dataloaders=model.train_dataloader(list(zip(x, y.float()))),
+        val_dataloaders=model.val_dataloader(list(zip(x_train, y_train.float()))),
+    )
 
     return model
 

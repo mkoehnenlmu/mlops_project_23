@@ -98,7 +98,11 @@ def add_to_database(
         if not os.path.exists(get_paths()["inference_data_path"]):
             with open(get_paths()["inference_data_path"], "a") as f:
                 writer = csv.writer(f)
-                writer.writerow(["time"] + [f"input{i}" for i in range(len(input_data))] + ["prediction"])
+                writer.writerow(
+                    ["time"]
+                    + [f"input{i}" for i in range(len(input_data))]
+                    + ["prediction"]
+                )
     else:
         # on Cloud Compute Engine, the service account credentials will be automatically available
         storage_client = storage.Client()

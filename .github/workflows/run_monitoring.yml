@@ -5,6 +5,9 @@ name: "Run monitoring in google cloud compute engine"
 
 # Run when build_monitoring has run successfully
 on:
+  push:
+    branches:
+      - logging
   workflow_run:
     workflows: [Build and push monitoring container]
     types:
