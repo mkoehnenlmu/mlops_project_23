@@ -6,8 +6,6 @@ name: "Build and push inference container"
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
   build:
