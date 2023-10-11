@@ -10,7 +10,7 @@ dependencies:
   - backports=1.0=pyhd8ed1ab_3
   - backports.functools_lru_cache=1.6.5=pyhd8ed1ab_0
   - bzip2=1.0.8=h7b6447c_0
-  - ca-certificates=2023.7.22=hbcca054_0
+  - ca-certificates=2023.08.22=h06a4308_0
   - comm=0.1.4=pyhd8ed1ab_0
   - debugpy=1.6.7=py311h6a678d5_0
   - decorator=5.1.1=pyhd8ed1ab_0
@@ -35,6 +35,7 @@ dependencies:
   - nest-asyncio=1.5.6=pyhd8ed1ab_0
   - openssl=3.0.11=h7f8727e_2
   - parso=0.8.3=pyhd8ed1ab_0
+  - pcre=8.45=h295c915_0
   - pexpect=4.8.0=pyh1a96a4e_2
   - pickleshare=0.7.5=py_1003
   - pip=23.2.1=py311h06a4308_0
@@ -51,10 +52,12 @@ dependencies:
   - six=1.16.0=pyh6c4a22f_0
   - sqlite=3.41.2=h5eee18b_0
   - stack_data=0.6.2=pyhd8ed1ab_0
+  - swig=4.0.2=h295c915_4
   - tk=8.6.12=h1ccaba5_0
   - traitlets=5.11.2=pyhd8ed1ab_0
   - typing-extensions=4.8.0=hd8ed1ab_0
   - typing_extensions=4.8.0=pyha770c72_0
+  - wheel=0.41.2=py311h06a4308_0
   - xz=5.4.2=h5eee18b_0
   - zeromq=4.3.4=h9c3ff4c_1
   - zipp=3.17.0=pyhd8ed1ab_0
@@ -90,18 +93,24 @@ dependencies:
       - click-didyoumean==0.3.0
       - click-plugins==1.1.1
       - click-repl==0.3.0
+      - cloudpickle==2.2.1
       - cmake==3.27.5
       - colorama==0.4.6
       - configobj==5.0.8
+      - configspace==0.7.1
       - contourpy==1.1.1
       - cookiecutter==2.3.1
       - coverage==7.3.1
       - cryptography==41.0.4
       - cycler==0.11.0
+      - dask==2023.9.3
+      - dask-jobqueue==0.8.2
       - dictdiffer==0.9.0
       - diskcache==5.6.3
       - distlib==0.3.7
+      - distributed==2023.9.3
       - distro==1.8.0
+      - docopt==0.6.2
       - docutils==0.20.1
       - dpath==2.1.6
       - dulwich==0.21.6
@@ -113,6 +122,7 @@ dependencies:
       - dvc-render==0.6.0
       - dvc-studio-client==0.15.0
       - dvc-task==0.3.0
+      - emcee==3.1.4
       - entrypoints==0.4
       - evidently==0.4.5
       - fastapi==0.103.2
@@ -160,6 +170,7 @@ dependencies:
       - kombu==5.3.2
       - lightning-utilities==0.9.0
       - lit==17.0.1
+      - locket==1.0.0
       - make==0.1.6.post2
       - markdown==3.4.4
       - markdown-it-py==3.0.0
@@ -167,7 +178,9 @@ dependencies:
       - matplotlib==3.8.0
       - mccabe==0.7.0
       - mdurl==0.1.2
+      - more-itertools==10.1.0
       - mpmath==1.3.0
+      - msgpack==1.0.7
       - multidict==6.0.4
       - mypy-extensions==1.0.0
       - networkx==3.1
@@ -191,14 +204,16 @@ dependencies:
       - orjson==3.9.7
       - packaging==23.1
       - pandas==2.1.1
+      - partd==1.4.1
       - pathspec==0.11.2
       - patsy==0.5.3
       - pillow==10.0.1
+      - pipreqs==0.4.13
       - platformdirs==3.10.0
       - plotly==5.17.0
       - pluggy==1.3.0
       - pre-commit==3.4.0
-      - protobuf==4.24.3
+      - protobuf==4.24.4
       - psutil==5.9.5
       - pyarrow==13.0.0
       - pyasn1==0.5.0
@@ -212,8 +227,10 @@ dependencies:
       - pyflakes==3.1.0
       - pygit2==1.13.1
       - pygtrie==2.5.0
+      - pynisher==1.0.9
       - pyopenssl==23.2.0
       - pyparsing==3.1.1
+      - pyrfr==0.9.0
       - pytest==7.4.2
       - python-dotenv==1.0.0
       - python-slugify==8.0.1
@@ -234,10 +251,12 @@ dependencies:
       - setuptools==68.2.2
       - shortuuid==1.0.11
       - shtab==1.6.4
+      - smac==2.0.2
       - smmap==5.0.1
       - snakeviz==2.2.0
       - sniffio==1.3.0
       - snowballstemmer==2.2.0
+      - sortedcontainers==2.4.0
       - sphinx==7.2.6
       - sphinxcontrib-applehelp==1.0.7
       - sphinxcontrib-devhelp==1.0.5
@@ -251,6 +270,7 @@ dependencies:
       - statsmodels==0.14.0
       - sympy==1.12
       - tabulate==0.9.0
+      - tblib==2.0.0
       - tenacity==8.2.3
       - tensorboard==2.14.0
       - tensorboard-data-server==0.7.1
@@ -258,6 +278,7 @@ dependencies:
       - threadpoolctl==3.2.0
       - tomli==2.0.1
       - tomlkit==0.12.1
+      - toolz==0.12.0
       - torch==2.0.1
       - torch-tb-profiler==0.4.1
       - torchmetrics==1.2.0
@@ -279,8 +300,9 @@ dependencies:
       - wcwidth==0.2.6
       - websockets==11.0.3
       - werkzeug==2.3.7
-      - wheel==0.41.2
       - yapf==0.40.2
+      - yarg==0.1.9
       - yarl==1.9.2
       - zc-lockfile==3.0.post1
+      - zict==3.0.0
 prefix: /home/mayak/anaconda3/envs/mlops_23
