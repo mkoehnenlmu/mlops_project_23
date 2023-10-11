@@ -12,6 +12,8 @@ COPY src/ src/
 
 # create directory for model storage
 RUN mkdir -p models/
+RUN mkdir -p data/
+RUN mkdir -p data/inference
 
 # install python packages
 WORKDIR /
