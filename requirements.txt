@@ -2,17 +2,17 @@
 -e .
 
 # external requirements
-click
-Sphinx
-coverage
-flake8
-python-dotenv>=0.5.1
-dvc
-hydra-core
-pandas
-pre-commit
-swig >= 4.1.1
-smac >= 2.0.0
-numpy
-matplotlib
-ConfigSpace
+ConfigSpace==0.7.1
+evidently==0.4.5
+fastapi==0.103.2
+hydra-core==1.3.2
+matplotlib==3.8.0
+numpy==1.26.0
+pandas==2.1.1
+protobuf==4.24.4
+pytest==7.4.2
+python-dotenv==1.0.0
+pytorch_lightning==2.0.9.post0
+setuptools==68.0.0
+smac==2.0.2
+torch==2.0.1
