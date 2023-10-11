@@ -1,14 +1,17 @@
-# github workflow file that creates and uploades the training container to Docker Hub
+# github workflow file that creates and uploades the monitoring container to Docker Hub
 # This file is run automatically run when a commit is made to the main branch
 
-name: "Build and push training container"
+name: "Build and push monitoring container"
 
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
+
     runs-on: ubuntu-latest
 
     steps:
@@ -21,13 +24,9 @@ jobs:
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
-    - name: Print directory
-      run: pwd
-    - name: Print directory
-      run: ls
-    - name: Build training docker container and push
+    - name: Build monitoring docker container and push
       uses: docker/build-push-action@v5
       with:
-        file: ./training.dockerfile
+        file: monitoring.dockerfile
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/training:latest
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/monitoring:latest

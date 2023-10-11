@@ -10,8 +10,13 @@ COPY requirements_inference.txt /requirements.txt
 COPY setup.py setup.py
 COPY src/ src/
 
-# create directory for model storage
+# create directory for model and data storage
 RUN mkdir -p models/
+RUN mkdir -p data/processed/
+
+# remove all files in src/configs/model_configs
+# We want to download the lastest config files from the bucket
+RUN rm -rf src/configs/model_configs/*
 
 # install python packages
 WORKDIR /

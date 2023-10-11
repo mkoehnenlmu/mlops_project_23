@@ -39,6 +39,16 @@ clean:
 lint:
 	flake8 src
 
+training:
+	python src/models/train_model.py
+
+tuning:
+	python src/models/tuning/optim.py
+
+## Run fastAPI
+inference:
+	uvicorn src.models.predict_model:app --host 0.0.0.0 --port 80
+
 ## Upload Data to S3
 sync_data_to_s3:
 ifeq (default,$(PROFILE))

@@ -1,22 +1,30 @@
 # -*- coding: utf-8 -*-
 import logging
 import os
-import pandas as pd
-
 from pathlib import Path
+from typing import List
+
+import pandas as pd
 from dotenv import find_dotenv, load_dotenv
 
 import src.features.build_features as bf
 
 
-def make_old_dataset(input_filepath, output_filepath):
+def make_old_dataset(input_filepath: str, output_filepath: str):
     """Runs data processing scripts to turn raw data from
     (../input_filepath) into cleaned data ready to be analyzed
     (saved in ../output_filepath).
+
+    Args:
+        input_filepath (str): Path to the raw data.
+        output_filepath (str): Path to save the cleaned data.
+
+    Returns:
+        None
     """
     logger = logging.getLogger(__name__)
     logger.info("making final data set from raw data")
-    datasets = []
+    datasets: List[pd.DataFrame] = []
 
     for file in os.listdir(input_filepath):
         if ".csv" in file:
@@ -37,13 +45,21 @@ def make_old_dataset(input_filepath, output_filepath):
         axis=1,
     )
 
-    final_dataset.to_csv("./data/processed/data.csv", index=False)
+    final_dataset.to_csv(output_filepath, index=False)
 
 
-def make_new_dataset(input_filepath, output_filepath):
-    """Runs data processing scripts to turn raw data from
+def make_new_dataset(input_filepath: str, output_filepath: str) -> None:
+    """
+    Runs data processing scripts to turn raw data from
     (../input_filepath) into cleaned data ready to be analyzed
     (saved in ../output_filepath).
+
+    Args:
+        input_filepath (str): Path to the raw data.
+        output_filepath (str): Path to save the cleaned data.
+
+    Returns:
+        None
     """
     logger = logging.getLogger(__name__)
     logger.info("making final data set from raw data")
@@ -71,7 +87,18 @@ def make_new_dataset(input_filepath, output_filepath):
     final_dataset_test.to_csv(output_filepath + "test_sample.csv", index=False)
 
 
-def main(input_filepath, output_filepath, data: str = "new"):
+def main(input_filepath: str, output_filepath: str, data: str = "new") -> None:
+    """
+    Main function to process raw data and create cleaned datasets.
+
+    Args:
+        input_filepath (str): Path to the raw data.
+        output_filepath (str): Path to save the cleaned data.
+        data (str, optional): Dataset type, 'new' or 'old'. Defaults to "new".
+
+    Returns:
+        None
+    """
     if data == "new":
         make_new_dataset(input_filepath, output_filepath)
     else:
