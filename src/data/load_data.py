@@ -12,8 +12,6 @@ from torch import tensor
 
 from src.models.model import LightningModel
 
-from hydra import compose, initialize
-
 # from omegaconf import OmegaConf
 
 initialize(config_path="../configs/", version_base="1.2")
@@ -61,11 +59,11 @@ def load_data(
             bucket_name,
         )
 
-    data_dir = data_path.split("/")[0] + "/" + data_path.split("/")[1] + "/"
+        data_dir = data_path.split("/")[0] + "/" + data_path.split("/")[1] + "/"
 
-    # unzip all files in data_dir
-    with zipfile.ZipFile(data_path.split(".")[0] + ".zip", "r") as zip_ref:
-        zip_ref.extractall(data_dir)
+        # unzip all files in data_dir
+        with zipfile.ZipFile(data_path.split(".")[0] + ".zip", "r") as zip_ref:
+            zip_ref.extractall(data_dir)
 
     if n_rows:
         return pd.read_csv(data_path, nrows=n_rows)
