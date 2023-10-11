@@ -72,7 +72,7 @@ def load_reference_data(
             get_paths()["inference_data_path"],
             get_paths()["inference_bucket"],
         )
-    current_data = pd.read_csv(get_paths()["inference_data_path"], index_col=0)
+    current_data = pd.read_csv(get_paths()["inference_data_path"],)
 
     current_data.drop(columns=["time"], inplace=True)
     current_data.columns = reference_data.columns
