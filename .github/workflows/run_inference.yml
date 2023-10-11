@@ -46,8 +46,10 @@ jobs:
           fi
       - name: 'If exists, update inference container in compute engine'
         if: steps.check_if_inference_exists.outputs.exists == 'true'
-        run: gcloud compute instances update-container inference \
-            --container-image docker.io/${{ secrets.DOCKERHUB_USERNAME }}/inference:latest
+        run: >
+          gcloud compute instances
+          update-container inference
+          --container-image docker.io/${{ secrets.DOCKERHUB_USERNAME }}/inference:latest
       - name: 'If not exists, run inference container in new compute engine'
         if: steps.check_if_inference_exists.outputs.exists == 'false'
         run: >
