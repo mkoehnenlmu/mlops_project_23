@@ -1,12 +1,12 @@
-# github workflow file that runs the training container in google cloud compute engine
+# github workflow file that runs the monitoring container in google cloud compute engine
 # This file is run automatically run when a new container was pushed by the other workflow
 
-name: "Run inference container in google cloud compute engine"
+name: "Run monitoring in google cloud compute engine"
 
 # Run when build_inference has run successfully
 on:
   workflow_run:
-    workflows: ["Build and push inference container"]
+    workflows: ["Build and push monitoring container"]
     types:
       - succeeded
 
@@ -39,31 +39,31 @@ jobs:
       # TODO: check if exists and only then run deletion
       #- name: 'Delete existing instance, if it exists'
       #  run: gcloud -q compute instances delete --zone=europe-west3-c training
-      - name: 'Run inference container in compute engine'
+      - name: 'Run monitoring container in compute engine'
         run: >
           gcloud compute instances
           create-with-container
-          inference
+          monitoring
           --service-account=actions-auth@wide-axiom-401015.iam.gserviceaccount.com
           --scopes=https://www.googleapis.com/auth/cloud-platform
-          --container-image=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/inference:latest
+          --container-image=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/monitoring:latest
           --zone=europe-west1-b
           --machine-type=c2d-highcpu-4
           --boot-disk-size=50GB
           --container-restart-policy='never'
-          --tags=inference-server,http-server
+          --tags=monitoring-server,http-server
       - name: "Delete old firewall rules"
         run: >
           gcloud compute firewall-rules
-          delete allow-http
+          delete allow-http-81
           --quiet
-      - name: "Open port 80 in inference compute engine vm"
+      - name: "Open port 81 in monitoring compute engine vm"
         run: >
           gcloud compute firewall-rules
-          create allow-http
-          --allow tcp:80
-          --target-tags inference-server,http-server
-          --description "Allow port 80 access to http-server"
+          create allow-http-81
+          --allow tcp:81
+          --target-tags monitoring-server,http-server
+          --description "Allow port 81 access to http-server"
           --direction INGRESS
           --priority 1000
           --network default
