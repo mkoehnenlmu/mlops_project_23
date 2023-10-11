@@ -3,15 +3,12 @@
 
 name: "Run monitoring in google cloud compute engine"
 
-# Run when build_inference has run successfully
+# Run when build_monitoring has run successfully
 on:
-  push:
-    branches:
-      - 17-model-monitoring
   workflow_run:
-    workflows: ["Build and push monitoring container"]
+    workflows: [Build and push monitoring container]
     types:
-      - succeeded
+      - completed
 
 # Documentation for setup (easiest in google cloud shell)
 # https://github.com/google-github-actions/auth#setup

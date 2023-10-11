@@ -20,10 +20,21 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v3
+    - id: 'auth'
+      name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        workload_identity_provider: 'projects/110692824256/locations/global/workloadIdentityPools/mlops/providers/mlops'
+        service_account: 'actions-auth@wide-axiom-401015.iam.gserviceaccount.com'
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v1'
+      with:
+        version: '>= 416.0.0'
+        project_id: 'wide-axiom-401015'
     - name: Install Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.11' 
+        python-version: '3.11'
     - name: Install dependencies without gpu support
       run: |
         python -m pip install --upgrade pip

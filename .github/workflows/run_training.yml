@@ -7,7 +7,7 @@ on:
   workflow_run:
     workflows: [Build and push training container]
     types:
-      - succeeded
+      - completed
 
 # Documentation for setup (easiest in google cloud shell)
 # https://github.com/google-github-actions/auth#setup
