@@ -42,6 +42,12 @@ def build_features(ic_trains: pd.DataFrame):
         else int(ic_trains.loc[i, "TIN"][2:])
         for i in range(len(ic_trains["TIN"]))
     ]
+    ic_trains["TNR"] = [
+        int(ic_trains.loc[i, "TIN"][3:])
+        if ic_trains.loc[i, "ICE"] == 1
+        else int(ic_trains.loc[i, "TIN"][2:])
+        for i in range(len(ic_trains["TIN"]))
+    ]
     # TIM == arrival or departure
     ic_trains["ARR"] = (ic_trains["TIM"] == "arr").astype(int)
 

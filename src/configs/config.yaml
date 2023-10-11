@@ -14,9 +14,10 @@ hyperparameters:
 paths:
   training_data_path: 'data/processed/train_sample.csv'
   training_bucket: 'delay_mlops_data'
+  inference_data_path: 'data/inference/database.csv'
+  inference_bucket: 'delay_mlops_inference'
   input_filepath: 'data/raw/'
   output_filepath: 'data/processed/'
-  inference_bucket: 'delay_mlops_inference'
   model_path: 'models/model.pth'
   model_config_path: 'src/configs/model_configs/hyperparams.json'
 tuning:

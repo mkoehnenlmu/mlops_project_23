@@ -7,15 +7,14 @@ from typing import Tuple
 import pandas as pd
 import torch
 from google.cloud import storage
+from hydra import compose, initialize
 from torch import tensor
 
 from src.models.model import LightningModel
 
-from hydra import compose, initialize
-
 # from omegaconf import OmegaConf
 
-initialize(config_path="../configs/")
+initialize(config_path="../configs/", version_base="1.2")
 cfg = compose(config_name="config")
 
 # load the paths into a global variable paths
@@ -35,7 +34,9 @@ def get_additional_configs():
 
 # loads the data from the processed data folder
 def load_data(
-    data_path: str = paths.training_data_path, bucket_name: str = paths.training_bucket
+    data_path: str = paths.training_data_path,
+    bucket_name: str = paths.training_bucket,
+    n_rows: int = None,
 ) -> pd.DataFrame:
     """
     Loads training data from a CSV file.
@@ -58,12 +59,14 @@ def load_data(
             bucket_name,
         )
 
-    data_dir = data_path.split("/")[0] + "/" + data_path.split("/")[1] + "/"
+        data_dir = data_path.split("/")[0] + "/" + data_path.split("/")[1] + "/"
 
-    # unzip all files in data_dir
-    with zipfile.ZipFile(data_path.split(".")[0] + ".zip", "r") as zip_ref:
-        zip_ref.extractall(data_dir)
+        # unzip all files in data_dir
+        with zipfile.ZipFile(data_path.split(".")[0] + ".zip", "r") as zip_ref:
+            zip_ref.extractall(data_dir)
 
+    if n_rows:
+        return pd.read_csv(data_path, nrows=n_rows)
     return pd.read_csv(data_path)
 
 

@@ -181,5 +181,20 @@ def run_optim(cfg, save: bool = True) -> None:
     train_optimal_model(cfg, optimal_params[0], save)
 
 
+def delete_vm() -> None:
+    """
+    Delete the host virtual machine on Google Cloud Compute Engine.
+
+    Returns:
+        None
+    """
+    import os
+
+    # get current zone
+    zone = os.popen("gcloud config get-value compute/zone").read().strip()
+    os.system(f"gcloud compute instances delete host --zone={zone} -q")
+
+
 if __name__ == "__main__":
     run_optim(cfg, save=True)
+    delete_vm()

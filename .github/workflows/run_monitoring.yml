@@ -1,15 +1,15 @@
-# github workflow file that runs the training container in google cloud compute engine
+# github workflow file that runs the monitoring container in google cloud compute engine
 # This file is run automatically run when a new container was pushed by the other workflow
 
-name: "Run inference container in google cloud compute engine"
+name: "Run monitoring in google cloud compute engine"
 
 # Run when build_inference has run successfully
 on:
   push:
-      branches:
-        - 17-model-monitoring
+    branches:
+      - 17-model-monitoring
   workflow_run:
-    workflows: ["Build and push inference container"]
+    workflows: ["Build and push monitoring container"]
     types:
       - succeeded
 
@@ -39,44 +39,45 @@ jobs:
           project_id: 'wide-axiom-401015'
       - name: 'Use gcloud CLI'
         run: 'gcloud info'
-      - name: 'Check if inference instance exists'
-        id: 'check_if_inference_exists'
+      - name: 'Check if monitoring instance exists'
+        id: 'check_if_monitoring_exists'
         run: |
-          if gcloud compute instances list --filter="name=inference" --format="value(name)" | grep -q "inference"; then
+          if gcloud compute instances list --filter="name=monitoring" --format="value(name)" | grep -q "inference"; then
             echo "::set-output name=exists::true"
           else
             echo "::set-output name=exists::false"
           fi
-      - name: 'If exists, update inference container in compute engine'
-        if: steps.check_if_inference_exists.outputs.exists == 'true'
-        run: gcloud compute instances update-container inference \
-            --container-image docker.io/${{ secrets.DOCKERHUB_USERNAME }}/inference:latest
-      - name: 'If not exists, run inference container in new compute engine'
-        if: steps.check_if_inference_exists.outputs.exists == 'false'
+      - name: 'If exists, update monitoring container in compute engine'
+        if: steps.check_if_monitoring_exists.outputs.exists == 'true'
+        run: gcloud compute instances update-container monitoring \
+            --container-image docker.io/${{ secrets.DOCKERHUB_USERNAME }}/monitoring:latest
+      - name: 'If not exists, run monitoring container in new compute engine'
+        if: steps.check_if_monitoring_exists.outputs.exists == 'false'
+      - name: 'Run monitoring container in compute engine'
         run: >
           gcloud compute instances
           create-with-container
-          inference
+          monitoring
           --service-account=actions-auth@wide-axiom-401015.iam.gserviceaccount.com
           --scopes=https://www.googleapis.com/auth/cloud-platform
-          --container-image=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/inference:latest
+          --container-image=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/monitoring:latest
           --zone=europe-west1-b
           --machine-type=c2d-highcpu-4
           --boot-disk-size=50GB
           --container-restart-policy='never'
-          --tags=inference-server,http-server
+          --tags=monitoring-server,http-server
       - name: "Delete old firewall rules"
         run: >
           gcloud compute firewall-rules
-          delete allow-http
+          delete allow-http-81
           --quiet
-      - name: "Open port 80 in inference compute engine vm"
+      - name: "Open port 81 in monitoring compute engine vm"
         run: >
           gcloud compute firewall-rules
-          create allow-http
-          --allow tcp:80
-          --target-tags inference-server,http-server
-          --description "Allow port 80 access to http-server"
+          create allow-http-81
+          --allow tcp:81
+          --target-tags monitoring-server,http-server
+          --description "Allow port 81 access to http-server"
           --direction INGRESS
           --priority 1000
           --network default
