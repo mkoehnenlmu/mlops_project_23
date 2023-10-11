@@ -36,10 +36,21 @@ jobs:
           project_id: 'wide-axiom-401015'
       - name: 'Use gcloud CLI'
         run: 'gcloud info'
-      # TODO: check if exists and only then run deletion
-      #- name: 'Delete existing instance, if it exists'
-      #  run: gcloud -q compute instances delete --zone=europe-west3-c training
-      - name: 'Run inference container in compute engine'
+      # define a variable that contains whether the instance exists
+      - name: 'Check if inference instance exists'
+        id: 'check_if_inference_exists'
+        run: |
+          if gcloud compute instances list --filter="name=inference" --format="value(name)" | grep -q "inference"; then
+            echo "::set-output name=exists::true"
+          else
+            echo "::set-output name=exists::false"
+          fi
+      - name: 'If exists, update inference container in compute engine'
+        if: steps.check_if_inference_exists.outputs.exists == 'true'
+        run: gcloud compute instances update-container inference \
+            --container-image docker.io/${{ secrets.DOCKERHUB_USERNAME }}/inference:latest
+      - name: 'If not exists, run inference container in new compute engine'
+        if: steps.check_if_inference_exists.outputs.exists == 'false'
         run: >
           gcloud compute instances
           create-with-container

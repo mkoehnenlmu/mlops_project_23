@@ -12,7 +12,7 @@ COPY src/ src/
 
 # create directory for model storage
 RUN mkdir -p models/
-RUN mkdir -p data/
+RUN mkdir -p data/processed
 RUN mkdir -p data/inference
 
 # install python packages
@@ -22,4 +22,5 @@ RUN pip3 install torch --index-url https://download.pytorch.org/whl/cpu
 RUN pip3 install --no-cache-dir -r /requirements.txt
 
 # start app that runs inference
+# uvicorn src.visualization.monitoring:app --host 0.0.0.0 --port 81
 CMD ["uvicorn", "src.visualization.monitoring:app", "--host", "0.0.0.0", "--port", "81"]
