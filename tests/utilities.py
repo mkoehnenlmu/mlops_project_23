@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Tuple
 import pandas as pd
 import torch
 
-from src.data.load_data import get_hparams, get_paths, get_additional_configs
+from src.data.load_data import get_additional_configs, get_hparams, get_paths
 
 
 def get_test_paths() -> Dict[str, Any]:
@@ -28,6 +28,10 @@ def get_test_data() -> pd.DataFrame:
 
 def get_normalized_test_data() -> Tuple[torch.Tensor, torch.Tensor]:
     return torch.randn(2, get_hparams()["input_size"]), torch.rand(2)
+
+
+def get_inference_test_data() -> Tuple[torch.Tensor, torch.Tensor]:
+    return torch.randn(1, get_hparams()['input_size']).tolist()
 
 
 def get_test_data_old() -> pd.DataFrame:
