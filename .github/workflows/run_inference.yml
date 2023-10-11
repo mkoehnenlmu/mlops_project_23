@@ -51,6 +51,7 @@ jobs:
           --machine-type=c2d-highcpu-4
           --boot-disk-size=50GB
           --container-restart-policy='never'
+          --tags=inference-server
       - name: "Open port 80 in compute engine vm"
         run: >
           gcloud compute firewall-rules
