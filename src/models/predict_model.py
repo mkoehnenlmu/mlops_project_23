@@ -18,7 +18,7 @@ from src.data.load_data import (
 )
 from src.models.model import LightningModel
 
-LOCAL = True  # set this to true when developing locally
+LOCAL = False  # set this to true when developing locally
 
 
 app = FastAPI()
@@ -92,11 +92,13 @@ def add_to_database(
     local: bool = LOCAL,
 ):
     """function that adds the 90 element input and the prediction together with the timestamp now to a csv-file"""
+    input_data = input_data.strip('"').strip("'").strip("[").strip("]")
+    input_data = input_data.split(",")
     if local:
         if not os.path.exists(get_paths()["inference_data_path"]):
             with open(get_paths()["inference_data_path"], "a") as f:
                 writer = csv.writer(f)
-                writer.writerow(["time", "input_data", "prediction"])
+                writer.writerow(["time"] + [f"input{i}" for i in range(len(input_data))] + ["prediction"])
     else:
         # on Cloud Compute Engine, the service account credentials will be automatically available
         storage_client = storage.Client()
@@ -110,7 +112,7 @@ def add_to_database(
         blob.download_to_filename(get_paths()["inference_data_path"])
     with open(get_paths()["inference_data_path"], "a") as f:
         writer = csv.writer(f)
-        writer.writerow([now, input_data, prediction])
+        writer.writerow([now] + input_data + [prediction])
     if not local:
         blob.upload_from_filename(get_paths()["inference_data_path"])
 
@@ -136,7 +138,7 @@ async def predict(
             "input": input_data,
             "message": HTTPStatus.OK.phrase,
             "status-code": HTTPStatus.OK,
-            "prediction": [{"delay": prediction.item()}],
+            "prediction": [{"delay": prediction}],
         }
 
     return response
