@@ -11,7 +11,7 @@ The application should predict the delay of a connection and thereby help users 
 ### Features
 Dockerization and deployment in the cloud, Data and model versioning and storage in GCP, multi-objective tuning, continuous integration via GH Actions
 
-Optional features (depending on how much time is left): 
+Optional features (depending on how much time is left):
 - Automatic retraining and deployment when a new version of the data is available
 - Detection of data drift in a separate scheduled job
 - Explainability (e.g. features causal for prediction or counterfactual explanations)
@@ -19,8 +19,8 @@ Optional features (depending on how much time is left):
 ### ML Framework
 We will use Pytorch Lightning to train a model for predicting the delays. We are working with a simple use case which enables us to focus on the development of the ML pipeline. Cross-validated, multi-objective tuning will be performed to find a well performing yet lightweight model.
 
-#### Inclusion of LightGBM into the project
-Lightning will be responsible for training and inference tasks in the respective docker containers in the cloud. 
+#### Inclusion of Lightning into the project
+Lightning will be responsible for training and inference tasks in the respective docker containers in the cloud.
 
 ### Data
 As the main data source, the “[dbahn_travels_captures](https://www.kaggle.com/datasets/chemamengibar/dbahn-travels-captures)” dataset from kaggle will be used.
